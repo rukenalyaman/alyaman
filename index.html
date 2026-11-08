@@ -45,7 +45,7 @@
             font-family: 'Tajawal', 'Cairo', 'Segoe UI', Tahoma, Arial, sans-serif;
         }
 
-        #welcome{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;padding:1rem;background:#f8faff;font-family:'Cairo','Segoe UI',Tahoma,Arial,sans-serif;transition:opacity .4s ease,visibility .4s;overflow:hidden}
+        #welcome{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;padding:1rem;background:#fbf1e9;font-family:'Cairo','Segoe UI',Tahoma,Arial,sans-serif;transition:opacity .4s ease,visibility .4s;overflow:hidden}
         #welcome.hide{opacity:0;visibility:hidden}
         #welcome .w-tile{width:92px;height:92px;border-radius:28px;background:#dbeafe;display:flex;align-items:center;justify-content:center;box-shadow:0 18px 36px -10px rgba(37,99,235,.45);animation:w-float 2.2s ease-in-out infinite}
         #welcome .w-tile svg{width:56px;height:56px;animation:w-spin 2.2s ease-in-out infinite}
@@ -113,11 +113,14 @@
         .bump { animation: bump .25s ease; }
         @keyframes bump { 50% { transform: scale(1.35); } }
 
-        /* ===== هوية أزرق ملكي + أبيض نقي (خفيفة: ظلال وtransform فقط) ===== */
-        :root{--royal:#1d4ed8;--royal-2:#2563eb;--navy:#1e3a8a;--ink:#0f1f4d}
-        body{background:linear-gradient(180deg,#f1f5ff 0,#fff 380px) #fff!important;color:var(--ink)}
-        body header.sticky{background:#fff;border-bottom:0;box-shadow:0 1px 0 #e6ecfb,0 8px 24px -16px rgba(30,58,138,.25)}
-        body header.sticky::before{content:"";display:block;height:3px;background:linear-gradient(90deg,#1e3a8a,#2563eb,#60a5fa)}
+        /* ===== الهوية العامة للموقع: أزرق ملكي وأبيض (التغيير المخطط محصور في البانر فقط) ===== */
+        :root{--royal:#1d4ed8;--royal-2:#2563eb;--navy:#1e3a8a;--ink:#0f1f4d;--onion:#f5dfdc;--onion-light:#fbefec;--stripe-blue:#8fb8ef}
+        body{background:linear-gradient(180deg,#f5e2de 0,#fbefec 420px,#fffaf8 100%) fixed!important;color:var(--ink)}
+        /* ترويسة موحّدة بلون بصلي سادة دون أي خطوط أو نقوش */
+        body header.sticky{background:var(--onion)!important;border-bottom:0;box-shadow:0 1px 0 rgba(30,58,138,.08),0 8px 24px -16px rgba(30,58,138,.16)}
+        body header.sticky::before{content:none!important;display:none!important}
+        body header.sticky .header-top-row{background:var(--onion)!important;}
+        body header.sticky .header-search-strip{background:var(--onion)!important;border-top:1px solid rgba(30,58,138,.08)}
         body #store-logo-container h1{color:var(--navy);letter-spacing:-.01em}
         body .text-stone-900{color:var(--ink)}
         body #main-search-input{border-radius:16px;border-color:#dbe5fb;box-shadow:0 4px 14px -8px rgba(30,58,138,.25);transition:box-shadow .2s ease,border-color .2s ease}
@@ -127,15 +130,46 @@
         main > section:nth-of-type(2){animation-delay:.08s}
         main > section:nth-of-type(3){animation-delay:.16s}
         @keyframes sec-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-        .hero{position:relative;overflow:hidden;border-radius:24px;padding:1.75rem 1.5rem;color:#fff;background:radial-gradient(circle at 12% 120%,rgba(255,255,255,.18) 0,transparent 45%),radial-gradient(circle at 95% -20%,rgba(255,255,255,.22) 0,transparent 40%),linear-gradient(135deg,#1e3a8a,#2563eb 60%,#3b82f6);box-shadow:0 18px 40px -18px rgba(30,58,138,.6)}
-        .hero h2{font-size:clamp(22px,5vw,32px);font-weight:900;margin:0 0 .35rem}
-        .hero p{margin:0;font-size:.9rem;color:#dbeafe}
-        .hero-chips{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
-        .hero-chips span{background:#fff;color:var(--royal);font-weight:800;font-size:.75rem;padding:.4rem .8rem;border-radius:9999px;box-shadow:0 4px 10px -4px rgba(0,0,0,.25)}
-        .hero-chips i{margin-left:.35rem}
+
+        /* بانر ترحيبي مخطط بالأبيض والأزرق الفاتح — هذا التعديل يخص هذا القسم وحده */
+        .hero{
+            position:relative;isolation:isolate;overflow:hidden;display:grid;
+            direction:rtl;grid-template-columns:minmax(270px,.95fr) minmax(300px,1.15fr) 150px;
+            align-items:center;gap:1.25rem;min-height:220px;
+            padding:1.5rem 1.65rem;color:#1e3a8a;
+            border:1px solid #bcd3f3;border-radius:26px;
+            background:repeating-linear-gradient(90deg,#8fb8ef 0 20px,#fff 20px 40px);
+            box-shadow:0 16px 34px -22px rgba(30,58,138,.32)
+        }
+        .hero::after{display:none}
+        .hero-brand{position:relative;z-index:2;min-width:0}
+        .hero-brand h2{font-size:clamp(1.55rem,2.5vw,2.35rem);font-weight:900;line-height:1.3;margin:0 0 .35rem;color:#1e3a8a}
+        .hero-brand .hero-subtitle{font-size:clamp(.85rem,1.25vw,1rem);font-weight:700;color:#385f95;margin:0}
+        .hero-message{
+            position:relative;z-index:2;min-width:0;text-align:center;
+            padding:1rem 1.15rem;border:1px solid rgba(255,255,255,.9);
+            border-radius:999px;background:linear-gradient(135deg,rgba(244,248,255,.97),rgba(224,237,255,.93));
+            box-shadow:0 8px 22px -18px rgba(30,58,138,.35)
+        }
+        .hero .hero-tagline{font-size:clamp(1.2rem,2.1vw,1.75rem);font-weight:900;color:#1e4690;margin:0 0 .25rem;line-height:1.5}
+        .hero .hero-categories{font-size:clamp(.9rem,1.55vw,1.15rem);font-weight:800;color:#385f95;margin:0;line-height:1.7}
+        .hero .hero-categories span{color:#7f9fc9;padding:0 .12rem}
+        .hero-chips{display:flex;flex-wrap:wrap;gap:.55rem;margin-top:1rem}
+        .hero-chips span{display:inline-flex;align-items:center;gap:.35rem;background:rgba(255,255,255,.96);border:1px solid #b9d0f2;color:#1d4ed8;font-weight:900;font-size:.82rem;padding:.48rem .85rem;border-radius:9999px;box-shadow:0 5px 12px -7px rgba(30,58,138,.32);white-space:nowrap}
+        .hero-chips i{color:#2563eb}
+        .hero-floral-art{position:relative;z-index:1;align-self:stretch;display:flex;align-items:center;justify-content:flex-start;min-width:0;pointer-events:none}
+        .hero-floral-art svg{display:block;width:100%;max-width:170px;height:auto;max-height:175px;overflow:visible;filter:drop-shadow(0 8px 7px rgba(157,65,112,.22)) drop-shadow(0 2px 2px rgba(255,255,255,.7))}
+        /* زهور بتأثير ثلاثي الأبعاد وحركة هادئة */
+        .hero-flower{transform-box:fill-box;transform-origin:center;transform-style:preserve-3d;filter:url(#heroFlowerDepth);animation:hero-flower-float 6.8s ease-in-out infinite;will-change:transform}
+        .hero-flower-main{animation-duration:7.4s}
+        .hero-flower-small{animation-duration:6.1s;animation-delay:-1.8s}
+        .hero-flower-last{animation-duration:7s;animation-delay:-3.2s}
+        @keyframes hero-flower-float{0%,100%{transform:translate3d(0,0,0) rotate(-1.2deg)}50%{transform:translate3d(0,-5px,0) rotate(1.8deg)}}
+        @media (prefers-reduced-motion:reduce){.hero-flower{animation:none;will-change:auto}}
         body main section h2{letter-spacing:-.01em}
         body .prod-card{background:#fff;border:1px solid #e8eefc;border-radius:20px;padding:.85rem;box-shadow:0 1px 2px rgba(30,58,138,.05),0 8px 24px -14px rgba(30,58,138,.22);transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease;content-visibility:auto;contain-intrinsic-size:auto 340px}
         body .prod-card .main-img{transition:transform .35s ease,opacity .3s ease}
+        body .prod-card:focus-visible{outline:3px solid #bfdbfe;outline-offset:3px}
         body .cat-thumb{box-shadow:0 6px 14px -8px rgba(30,58,138,.35)}
         body #subcats-container{background:#f4f7ff;border-color:#e3eafc}
         body button{transition:transform .15s ease,box-shadow .2s ease,background-color .2s ease,color .2s ease}
@@ -151,7 +185,116 @@
             .hero-chips span{transition:transform .2s ease}
             .hero-chips span:hover{transform:translateY(-2px)}
         }
+        @media(max-width:900px){
+            .hero{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1rem;min-height:205px;padding:1.35rem}
+            .hero-floral-art{position:absolute;left:.2rem;bottom:0;width:120px;height:125px;opacity:.68}
+            .hero-floral-art svg{max-height:125px}
+        }
+        @media(max-width:620px){
+            .hero{grid-template-columns:1fr;gap:.9rem;text-align:center;padding:1.25rem 1rem 5.2rem;min-height:0;border-radius:22px}
+            .hero-brand{display:flex;flex-direction:column;align-items:center}
+            .hero-brand h2{font-size:clamp(1.45rem,6vw,1.9rem)}
+            .hero-chips{justify-content:center;margin-top:.75rem}
+            .hero-chips span{font-size:.73rem;padding:.4rem .68rem}
+            .hero-message{width:min(100%,470px);margin:0 auto;padding:.75rem .8rem}
+            .hero .hero-tagline{font-size:clamp(1.05rem,5vw,1.35rem)}
+            .hero .hero-categories{font-size:clamp(.8rem,3.7vw,1rem)}
+            .hero-floral-art{left:0;bottom:-.2rem;width:112px;height:100px;opacity:.72}
+            .hero-floral-art svg{max-height:105px}
+        }
         @media (prefers-reduced-motion:reduce){main > section,#welcome h2{animation:none}body .prod-card,body .prod-card .main-img{transition:none}}
+
+        /* هوية صيدلية ركن اليمان: تكبير خفيف ولمسات زهرية وردية */
+        #store-logo-container{position:relative;min-width:0}
+        #store-logo-container .store-logo-mark{
+            flex:0 0 auto;
+            border-color:#f9a8d4;
+            box-shadow:0 5px 14px -7px rgba(219,39,119,.28),0 2px 5px rgba(30,58,138,.08);
+        }
+        #store-brand-copy{position:relative;padding:.12rem .2rem;}
+        #store-brand-copy h1{font-size:clamp(1.2rem,2vw,1.5rem);line-height:1.3;}
+        #store-brand-copy p{font-size:clamp(.78rem,1.25vw,.9rem);margin-top:.12rem;color:#2563eb;}
+        #store-brand-copy::before,
+        #store-brand-copy::after{
+            position:absolute;pointer-events:none;line-height:1;
+            font-family:Arial,sans-serif;font-weight:400;
+        }
+        #store-brand-copy::before{
+            content:"✿";top:-.55rem;left:-.48rem;
+            color:#ec72ad;font-size:1rem;transform:rotate(-15deg);
+            text-shadow:0 1px 3px rgba(236,114,173,.18);
+        }
+        #store-brand-copy::after{
+            content:"❀";bottom:-.55rem;right:-.48rem;
+            color:#f4a2ca;font-size:.9rem;transform:rotate(12deg);
+        }
+        @media(max-width:480px){
+            #store-logo-container{gap:.55rem}
+            #store-logo-container .store-logo-mark{width:3rem;height:3rem;border-radius:1rem}
+            #store-brand-copy h1{font-size:clamp(1.05rem,4.1vw,1.2rem)}
+            #store-brand-copy p{font-size:.68rem}
+        }
+    
+        /* تحسين وضوح نصوص البانر مع تأثير زجاجي ناعم */
+        .hero-brand{
+            padding:1rem 1.15rem;
+            border:1px solid rgba(255,255,255,.66);
+            border-radius:24px;
+            background:linear-gradient(135deg,rgba(255,255,255,.58),rgba(248,251,255,.30));
+            -webkit-backdrop-filter:blur(14px) saturate(155%);
+            backdrop-filter:blur(14px) saturate(155%);
+            box-shadow:inset 0 1px 0 rgba(255,255,255,.88),0 12px 26px -20px rgba(20,55,110,.42);
+        }
+        .hero-brand h2{
+            color:#153b78;
+            text-shadow:0 1px 0 rgba(255,255,255,.88),0 3px 12px rgba(30,65,125,.10);
+            letter-spacing:-.025em;
+        }
+        .hero-brand .hero-subtitle{
+            color:#244f88;
+            text-shadow:0 1px 0 rgba(255,255,255,.82);
+            font-weight:800;
+        }
+        .hero-message{
+            background:linear-gradient(135deg,rgba(255,255,255,.70),rgba(238,246,255,.43));
+            border:1px solid rgba(255,255,255,.92);
+            -webkit-backdrop-filter:blur(17px) saturate(165%);
+            backdrop-filter:blur(17px) saturate(165%);
+            box-shadow:inset 0 1px 0 rgba(255,255,255,.96),inset 0 -1px 0 rgba(255,255,255,.38),0 14px 30px -22px rgba(23,60,120,.48);
+        }
+        .hero .hero-tagline{
+            color:#123c7b;
+            text-shadow:0 1px 0 rgba(255,255,255,.92),0 2px 10px rgba(25,65,130,.10);
+            letter-spacing:-.02em;
+        }
+        .hero .hero-categories{
+            color:#244f83;
+            text-shadow:0 1px 0 rgba(255,255,255,.82);
+        }
+        .hero .hero-categories span{
+            color:#377dcc;
+            text-shadow:0 1px 0 rgba(255,255,255,.8);
+        }
+        .hero-chips span{
+            background:rgba(255,255,255,.78);
+            border-color:rgba(255,255,255,.96);
+            color:#17498e;
+            -webkit-backdrop-filter:blur(10px) saturate(145%);
+            backdrop-filter:blur(10px) saturate(145%);
+            box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 6px 16px -9px rgba(30,65,125,.38);
+        }
+        .hero-chips i{color:#246bd0}
+        @media(max-width:620px){
+            .hero-brand{padding:.85rem .8rem;border-radius:20px}
+            .hero-brand h2{line-height:1.35}
+            .hero-message{border-radius:24px}
+        }
+        @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+            .hero-brand{background:rgba(255,255,255,.88)}
+            .hero-message{background:rgba(245,249,255,.92)}
+            .hero-chips span{background:rgba(255,255,255,.96)}
+        }
+
     </style>
 </head>
 <body class="min-h-screen flex flex-col bg-[#f8faff]">
@@ -185,12 +328,12 @@
  
     <!-- الهيدر والبحث -->
     <header class="sticky top-0 z-40 bg-white shadow-sm border-b border-blue-100">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+        <div class="header-top-row max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <div id="store-logo-container" class="flex items-center gap-3 cursor-pointer select-none transition-all duration-200 active:scale-95" onclick="goToHome()" title="انقر مرتين للوصول للوحة التحكم">
-                <div class="w-12 h-12 rounded-2xl bg-blue-100 flex items-center justify-center overflow-hidden border border-blue-200 shadow-sm">
-                    <img id="store-logo-img" width="48" height="48" decoding="async" onerror="imgErr(this,'logo')" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23e0f2fe'/><text x='50%' y='55%' font-family='Arial' font-weight='bold' font-size='28' fill='%230ea5e9' text-anchor='middle' dominant-baseline='middle'>ركن</text></svg>" alt="شعار صيدلية ركن اليمان" class="w-full h-full object-cover">
+                <div class="store-logo-mark w-14 h-14 rounded-2xl bg-blue-100 flex items-center justify-center overflow-hidden border shadow-sm">
+                    <img id="store-logo-img" width="56" height="56" decoding="async" onerror="imgErr(this,'logo')" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23e0f2fe'/><text x='50%' y='55%' font-family='Arial' font-weight='bold' font-size='28' fill='%230ea5e9' text-anchor='middle' dominant-baseline='middle'>ركن</text></svg>" alt="شعار صيدلية ركن اليمان" class="w-full h-full object-cover">
                 </div>
-                <div>
+                <div id="store-brand-copy">
                     <h1 class="text-xl font-black text-stone-900 tracking-tight">صيدلية ركن اليمان</h1>
                     <p class="text-xs text-blue-700 font-semibold">عالم العناية والتجميل الأصلي</p>
                 </div>
@@ -205,7 +348,7 @@
             </div>
         </div>
  
-        <div class="bg-blue-50/70 border-t border-blue-100/60 py-3 px-4">
+        <div class="header-search-strip py-3 px-4">
             <div class="max-w-3xl mx-auto relative">
                 <i class="fa-solid fa-magnifying-glass absolute right-4 top-1/2 -translate-y-1/2 text-blue-600 text-lg"></i>
                 <input type="text" id="main-search-input" oninput="handleSearch(this.value)" placeholder="ابحثي عن منتج للعناية، مكياج، أو علامة تجارية..." class="w-full pl-4 pr-12 py-3 bg-white border border-blue-200 rounded-2xl shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-600 font-medium text-stone-800 placeholder-stone-400 transition-all duration-200">
@@ -219,13 +362,108 @@
     <!-- المحتوى الرئيسي -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
  
-        <!-- واجهة ترحيبية -->
-        <section class="hero mb-8">
-            <h2>صيدلية ركن اليمان</h2>
-            <p>منتجات أصلية، وتوصيل لجميع المحافظات</p>
-            <div class="hero-chips">
-                <span><i class="fa-solid fa-shield-halved"></i> منتجات أصلية</span>
-                <span><i class="fa-solid fa-truck-fast"></i> توصيل لجميع المحافظات</span>
+        <!-- بانر صيدلية ركن اليمان: خطوط زرقاء وبيضاء مع العبارة التسويقية والزهور -->
+        <section class="hero mb-8" aria-label="صيدلية ركن اليمان - كل احتياجاتج بمكان واحد">
+            <div class="hero-brand">
+                <h2>صيدلية ركن اليمان</h2>
+                <p class="hero-subtitle">منتجات أصلية، وتوصيل لجميع المحافظات</p>
+                <div class="hero-chips">
+                    <span><i class="fa-solid fa-shield-halved"></i> منتجات أصلية</span>
+                    <span><i class="fa-solid fa-user-doctor"></i> استشارات صيدلانية</span>
+                    <span><i class="fa-solid fa-truck-fast"></i> توصيل لجميع المحافظات</span>
+                </div>
+            </div>
+
+            <div class="hero-message">
+                <p class="hero-tagline">كل احتياجاتج بمكان واحد</p>
+                <p class="hero-categories">عناية <span aria-hidden="true">•</span> جمال <span aria-hidden="true">•</span> صحة <span aria-hidden="true">•</span> أم وطفل</p>
+            </div>
+
+            <div class="hero-floral-art" aria-hidden="true">
+                <svg viewBox="0 0 210 180" xmlns="http://www.w3.org/2000/svg" role="presentation">
+                    <defs>
+                        <radialGradient id="heroPetalPink" cx="32%" cy="24%" r="82%">
+                            <stop offset="0" stop-color="#fffafd"/>
+                            <stop offset=".2" stop-color="#ffeaf3"/>
+                            <stop offset=".52" stop-color="#f5b2cf"/>
+                            <stop offset=".82" stop-color="#e983b2"/>
+                            <stop offset="1" stop-color="#c85d91"/>
+                        </radialGradient>
+                        <linearGradient id="heroPetalGloss" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0" stop-color="#ffffff" stop-opacity=".78"/>
+                            <stop offset=".42" stop-color="#ffffff" stop-opacity=".18"/>
+                            <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+                        </linearGradient>
+                        <filter id="heroFlowerDepth" x="-45%" y="-45%" width="190%" height="190%" color-interpolation-filters="sRGB">
+                            <feGaussianBlur in="SourceAlpha" stdDeviation="2.1" result="blur"/>
+                            <feOffset in="blur" dx="2" dy="4" result="offsetBlur"/>
+                            <feComponentTransfer in="offsetBlur" result="softShadow">
+                                <feFuncA type="linear" slope=".34"/>
+                            </feComponentTransfer>
+                            <feMerge><feMergeNode in="softShadow"/><feMergeNode in="SourceGraphic"/></feMerge>
+                        </filter>
+                        <linearGradient id="heroStem" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0" stop-color="#b5c99c"/>
+                            <stop offset="1" stop-color="#789b83"/>
+                        </linearGradient>
+                    </defs>
+                    <path d="M34 174 C48 139 66 120 84 94 C101 69 119 43 151 18" fill="none" stroke="url(#heroStem)" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M57 139 C35 126 24 111 18 91 C40 95 55 108 57 139Z" fill="#a9c2a4" opacity=".85"/>
+                    <path d="M83 105 C105 105 120 96 134 78 C110 75 94 84 83 105Z" fill="#b9c9a9" opacity=".9"/>
+                    <path d="M112 62 C91 51 82 36 80 19 C101 27 112 42 112 62Z" fill="#b8c9a7" opacity=".85"/>
+                    <path d="M68 125 C86 128 99 139 106 156 C85 155 72 145 68 125Z" fill="#9fb99d" opacity=".8"/>
+                    <g class="hero-flower hero-flower-main"><g transform="translate(67 83)">
+                        <g fill="url(#heroPetalPink)" stroke="#e99abb" stroke-width=".8">
+                            <ellipse cx="0" cy="-22" rx="12" ry="23"/>
+                            <ellipse cx="0" cy="-22" rx="12" ry="23" transform="rotate(72)"/>
+                            <ellipse cx="0" cy="-22" rx="12" ry="23" transform="rotate(144)"/>
+                            <ellipse cx="0" cy="-22" rx="12" ry="23" transform="rotate(216)"/>
+                            <ellipse cx="0" cy="-22" rx="12" ry="23" transform="rotate(288)"/>
+                        </g>
+                        <g fill="url(#heroPetalGloss)" opacity=".72">
+                            <ellipse cx="-3" cy="-27" rx="3.1" ry="10" transform="rotate(-7)"/>
+                            <ellipse cx="-3" cy="-27" rx="3.1" ry="10" transform="rotate(65)"/>
+                            <ellipse cx="-3" cy="-27" rx="3.1" ry="10" transform="rotate(137)"/>
+                            <ellipse cx="-3" cy="-27" rx="3.1" ry="10" transform="rotate(209)"/>
+                            <ellipse cx="-3" cy="-27" rx="3.1" ry="10" transform="rotate(281)"/>
+                        </g>
+                        <circle r="8" fill="#d96f9e"/><circle r="3" fill="#ffe5a8"/>
+                    </g></g>
+                    <g class="hero-flower hero-flower-small"><g transform="translate(143 39) scale(.58)">
+                        <g fill="url(#heroPetalPink)" stroke="#e99abb" stroke-width="1">
+                            <ellipse cx="0" cy="-20" rx="11" ry="21"/>
+                            <ellipse cx="0" cy="-20" rx="11" ry="21" transform="rotate(72)"/>
+                            <ellipse cx="0" cy="-20" rx="11" ry="21" transform="rotate(144)"/>
+                            <ellipse cx="0" cy="-20" rx="11" ry="21" transform="rotate(216)"/>
+                            <ellipse cx="0" cy="-20" rx="11" ry="21" transform="rotate(288)"/>
+                        </g>
+                        <g fill="url(#heroPetalGloss)" opacity=".72">
+                            <ellipse cx="-3" cy="-25" rx="2.6" ry="8" transform="rotate(-7)"/>
+                            <ellipse cx="-3" cy="-25" rx="2.6" ry="8" transform="rotate(65)"/>
+                            <ellipse cx="-3" cy="-25" rx="2.6" ry="8" transform="rotate(137)"/>
+                            <ellipse cx="-3" cy="-25" rx="2.6" ry="8" transform="rotate(209)"/>
+                            <ellipse cx="-3" cy="-25" rx="2.6" ry="8" transform="rotate(281)"/>
+                        </g>
+                        <circle r="7" fill="#d96f9e"/><circle r="2.5" fill="#ffe5a8"/>
+                    </g></g>
+                    <g class="hero-flower hero-flower-last"><g transform="translate(143 145) scale(.48)">
+                        <g fill="url(#heroPetalPink)" stroke="#e99abb" stroke-width="1">
+                            <ellipse cx="0" cy="-20" rx="11" ry="21"/>
+                            <ellipse cx="0" cy="-20" rx="11" ry="21" transform="rotate(72)"/>
+                            <ellipse cx="0" cy="-20" rx="11" ry="21" transform="rotate(144)"/>
+                            <ellipse cx="0" cy="-20" rx="11" ry="21" transform="rotate(216)"/>
+                            <ellipse cx="0" cy="-20" rx="11" ry="21" transform="rotate(288)"/>
+                        </g>
+                        <g fill="url(#heroPetalGloss)" opacity=".72">
+                            <ellipse cx="-3" cy="-25" rx="2.6" ry="8" transform="rotate(-7)"/>
+                            <ellipse cx="-3" cy="-25" rx="2.6" ry="8" transform="rotate(65)"/>
+                            <ellipse cx="-3" cy="-25" rx="2.6" ry="8" transform="rotate(137)"/>
+                            <ellipse cx="-3" cy="-25" rx="2.6" ry="8" transform="rotate(209)"/>
+                            <ellipse cx="-3" cy="-25" rx="2.6" ry="8" transform="rotate(281)"/>
+                        </g>
+                        <circle r="7" fill="#d96f9e"/><circle r="2.5" fill="#ffe5a8"/>
+                    </g></g>
+                </svg>
             </div>
         </section>
 
@@ -285,6 +523,36 @@
     <!-- إشعار سريع -->
     <div id="toast" class="bg-stone-900 text-white text-sm font-bold px-4 py-2.5 rounded-xl shadow-lg" role="status" aria-live="polite"></div>
  
+    <!-- نافذة تفاصيل المنتج -->
+    <div id="product-details-modal" class="fixed inset-0 z-[60] bg-black/60 hidden flex items-center justify-center p-3 sm:p-5" onclick="if(event.target===this)closeProductDetails()">
+        <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden" role="dialog" aria-modal="true" aria-labelledby="product-details-title">
+            <div class="p-4 sm:p-5 border-b border-blue-100 flex items-center justify-between bg-blue-50/60">
+                <h3 id="product-details-title" class="text-lg font-black text-stone-900">تفاصيل المنتج</h3>
+                <button type="button" onclick="closeProductDetails()" class="w-9 h-9 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded-full flex items-center justify-center" aria-label="إغلاق التفاصيل">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="p-4 sm:p-6 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
+                <div class="rounded-2xl bg-white border border-blue-100 p-3 flex items-center justify-center min-h-[230px]">
+                    <img id="product-details-image" src="" alt="صورة المنتج" class="w-full max-h-[360px] object-contain rounded-xl" onerror="imgErr(this,'prod')">
+                </div>
+                <div class="flex flex-col gap-3">
+                    <div class="flex flex-wrap gap-2">
+                        <span id="product-details-category" class="text-xs font-bold text-blue-800 bg-blue-50 border border-blue-100 px-3 py-1 rounded-full"></span>
+                        <span id="product-details-subcategory" class="hidden text-xs font-bold text-pink-700 bg-pink-50 border border-pink-100 px-3 py-1 rounded-full"></span>
+                    </div>
+                    <h4 id="product-details-name" class="text-xl font-black text-stone-900 leading-relaxed"></h4>
+                    <p id="product-details-description" class="text-sm text-stone-600 leading-7 whitespace-pre-wrap"></p>
+                    <div id="product-details-price" class="pt-3 border-t border-stone-100"></div>
+                    <p id="product-details-stock" class="text-sm font-bold"></p>
+                    <button type="button" id="product-details-add" class="mt-auto w-full bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-2xl font-black flex items-center justify-center gap-2 shadow-lg">
+                        <i class="fa-solid fa-cart-plus"></i> أضف إلى السلة
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- نافذة سلة المشتريات -->
     <div id="cart-modal" class="fixed inset-0 z-50 bg-black/50 hidden flex items-center justify-center p-4" onclick="if(event.target===this)closeCartModal()">
         <div class="bg-white rounded-3xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
@@ -361,12 +629,9 @@
                     <span>الإجمالي الكلي النهائي:</span>
                     <span id="cart-total-price" class="text-blue-800 text-xl">0 د.ع</span>
                 </div>
-                <div class="grid grid-cols-2 gap-2 mt-2">
+                <div class="grid grid-cols-1 gap-2 mt-2">
                     <button onclick="checkoutViaWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 shadow-lg shadow-emerald-600/20">
                         <i class="fa-brands fa-whatsapp text-xl"></i> واتساب
-                    </button>
-                    <button onclick="checkoutViaInstagram()" class="w-full text-white py-3.5 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 shadow-lg" style="background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);box-shadow:0 10px 15px -3px rgba(188,24,136,.25)">
-                        <i class="fa-brands fa-instagram text-xl"></i> انستكرام
                     </button>
                 </div>
             </div>
@@ -420,11 +685,11 @@
                         <form id="product-form" onsubmit="saveProduct(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             <input type="hidden" id="edit-product-id">
 
-                            <!-- صور المنتج (حتى 3) -->
+                            <!-- صورة واحدة لكل منتج -->
                             <div class="sm:col-span-2 lg:col-span-3">
-                                <label class="block text-xs font-bold text-stone-700 mb-1">صور المنتج (حتى 5 صور):</label>
-                                <div id="p-image-slots" class="grid grid-cols-3 sm:grid-cols-5 gap-3 max-w-2xl"></div>
-                                <p class="text-[11px] text-stone-400 mt-2">الصورة الأولى هي الرئيسية وتظهر في واجهة المتجر والسلة. تُرفع الصور إلى Cloudinary.</p>
+                                <label class="block text-xs font-bold text-stone-700 mb-1">صورة المنتج:</label>
+                                <div id="p-image-slots" class="grid grid-cols-1 gap-3 max-w-[170px]"></div>
+                                <p class="text-[11px] text-stone-400 mt-2">يمكن رفع صورة واحدة فقط لكل منتج، وتظهر في بطاقة المنتج والسلة ونافذة التفاصيل.</p>
                             </div>
 
                             <!-- اسم المنتج ثانياً -->
@@ -799,7 +1064,7 @@
         }
  
         function syncScrollLock() {
-            const open = ['cart-modal', 'admin-login-modal', 'admin-dashboard-modal', 'custom-alert-modal']
+            const open = ['cart-modal', 'product-details-modal', 'admin-login-modal', 'admin-dashboard-modal', 'custom-alert-modal']
                 .some((id) => !$(id).classList.contains('hidden'));
             document.body.classList.toggle('no-scroll', open);
         }
@@ -906,20 +1171,16 @@
                 : `<button type="button" data-add="${esc(p.id)}" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-150 active:scale-95 shadow-sm shadow-blue-200 flex items-center gap-1.5"><i class="fa-solid fa-cart-plus text-[10px]"></i> أضف</button>`;
  
             const imgs = getImages(p);
-            const mainImg = imgs[0] || svgFallback;
-            const thumbs = imgs.length > 1
-                ? `<div class="flex gap-1 mb-3 justify-center">${imgs.map((u, i) => `<button type="button" data-thumb="${esc(u)}" class="flex-1 max-w-[40px] aspect-square rounded-lg overflow-hidden border-2 ${i === 0 ? 'border-blue-600' : 'border-stone-200'} bg-white"><img src="${esc(cldUrl(u, 100))}" data-orig="${esc(u)}" width="40" height="40" loading="lazy" decoding="async" class="w-full h-full object-contain" onerror="imgErr(this,'prod')"></button>`).join('')}</div>`
-                : '';
+            const mainImg = imgs[0] || p.image || svgFallback;
 
             return `
-                <div class="prod-card bg-white rounded-2xl p-3 flex flex-col h-full relative">
+                <div class="prod-card bg-white rounded-2xl p-3 flex flex-col h-full relative cursor-pointer" data-product-open="${esc(p.id)}" role="button" tabindex="0" aria-label="عرض تفاصيل ${esc(p.name)}">
                     <div class="relative w-full aspect-square rounded-xl overflow-hidden mb-3 bg-white">
                         ${badge}
                         ${stockBadge}
                         <img src="${esc(cldUrl(mainImg, 600))}" data-orig="${esc(mainImg)}" alt="${esc(p.name)}" width="380" height="380" loading="${eager ? 'eager' : 'lazy'}"${eager ? ' fetchpriority="high"' : ''} decoding="async" class="main-img img-fade w-full h-full object-contain bg-white${soldOut ? ' opacity-60' : ''}" onload="this.classList.add('loaded')" onerror="imgErr(this,'prod')">
                         <div class="absolute top-2 right-2 bg-white/90 text-blue-700 text-[10px] font-bold px-2 py-1 rounded-md shadow-sm">${esc(p.category)}</div>
                     </div>
-                    ${thumbs}
                     <h3 class="font-bold text-stone-800 text-sm mb-1 leading-tight min-h-[35px]" title="${esc(p.name)}">${esc(p.name)}</h3>
                     <p class="text-[10px] text-stone-500 mb-3 flex-grow min-h-[30px]" title="${esc(p.description)}">${esc(p.description)}</p>
                     <div class="flex items-center justify-between mt-auto pt-2 border-t border-stone-50">
@@ -1045,22 +1306,97 @@
             renderProducts();
         });
         $('products-grid').addEventListener('click', (e) => {
-            const b = e.target.closest('[data-add]');
-            if (b) addToCart(b.dataset.add);
-            const t = e.target.closest('[data-thumb]');
-            if (t) {
-                const card = t.closest('.prod-card');
-                const main = card.querySelector('.main-img');
-                main.classList.add('loaded');
-                main.dataset.orig = t.dataset.thumb;
-                main.src = cldUrl(t.dataset.thumb, 600);
-                card.querySelectorAll('[data-thumb]').forEach((x) => {
-                    x.classList.toggle('border-blue-600', x === t);
-                    x.classList.toggle('border-stone-200', x !== t);
-                });
+            const addButton = e.target.closest('[data-add]');
+            if (addButton) {
+                e.preventDefault();
+                e.stopPropagation();
+                addToCart(addButton.dataset.add);
+                return;
+            }
+            const card = e.target.closest('[data-product-open]');
+            if (card && !e.target.closest('a,button,input,select,textarea')) {
+                openProductDetails(card.dataset.productOpen);
             }
         });
+        $('products-grid').addEventListener('keydown', (e) => {
+            const card = e.target.closest('[data-product-open]');
+            if (card && e.target === card && (e.key === 'Enter' || e.key === ' ')) {
+                e.preventDefault();
+                openProductDetails(card.dataset.productOpen);
+            }
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !$('product-details-modal').classList.contains('hidden')) closeProductDetails();
+        });
  
+        /* ================= تفاصيل المنتج ================= */
+        function openProductDetails(id) {
+            const product = products.find((item) => item.id === id);
+            if (!product) return;
+
+            const imageUrl = getImages(product)[0] || product.image || svgFallback;
+            const image = $('product-details-image');
+            image.onerror = function () { imgErr(this, 'prod'); };
+            image.dataset.orig = imageUrl;
+            image.src = cldUrl(imageUrl, 900);
+            image.alt = product.name || 'صورة المنتج';
+
+            $('product-details-title').textContent = 'تفاصيل المنتج';
+            $('product-details-name').textContent = product.name || 'منتج';
+            $('product-details-description').textContent = product.description || 'لا يتوفر وصف لهذا المنتج حالياً.';
+            $('product-details-category').textContent = product.category || 'منتجات الصيدلية';
+            const sub = $('product-details-subcategory');
+            sub.textContent = product.subcategory || '';
+            sub.classList.toggle('hidden', !product.subcategory);
+
+            const price = Number(product.price) || 0;
+            const discountPercent = activePercent();
+            const priceBox = $('product-details-price');
+            if (discountPercent > 0) {
+                const discounted = Math.round(price - price * discountPercent / 100);
+                priceBox.innerHTML = `<div class="flex flex-wrap items-center gap-2"><span class="text-sm text-stone-400 line-through">${price.toLocaleString()} د.ع</span><span class="text-2xl font-black text-red-600">${discounted.toLocaleString()} د.ع</span><span class="text-xs font-black text-white bg-red-500 px-2 py-1 rounded-lg">خصم ${discountPercent}%</span></div>`;
+            } else {
+                priceBox.innerHTML = `<span class="text-2xl font-black text-blue-800">${price.toLocaleString()} د.ع</span>`;
+            }
+
+            const stock = getStock(product);
+            const stockLine = $('product-details-stock');
+            if (stock === null) {
+                stockLine.textContent = 'متوفر للطلب';
+                stockLine.className = 'text-sm font-bold text-emerald-700';
+            } else if (stock <= 0) {
+                stockLine.textContent = 'نفدت الكمية حالياً';
+                stockLine.className = 'text-sm font-bold text-red-600';
+            } else if (stock <= 5) {
+                stockLine.textContent = `باقي ${stock} ${stock === 1 ? 'قطعة' : 'قطع'} فقط`;
+                stockLine.className = 'text-sm font-bold text-amber-600';
+            } else {
+                stockLine.textContent = `متوفر: ${stock} قطعة`;
+                stockLine.className = 'text-sm font-bold text-emerald-700';
+            }
+
+            const addButton = $('product-details-add');
+            addButton.disabled = stock !== null && stock <= 0;
+            addButton.className = addButton.disabled
+                ? 'mt-auto w-full bg-stone-300 text-white py-3.5 rounded-2xl font-black flex items-center justify-center gap-2 cursor-not-allowed'
+                : 'mt-auto w-full bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-2xl font-black flex items-center justify-center gap-2 shadow-lg';
+            addButton.innerHTML = addButton.disabled
+                ? '<i class="fa-solid fa-ban"></i> نفدت الكمية'
+                : '<i class="fa-solid fa-cart-plus"></i> أضف إلى السلة';
+            addButton.onclick = () => {
+                addToCart(product.id);
+                closeProductDetails();
+            };
+
+            $('product-details-modal').classList.remove('hidden');
+            syncScrollLock();
+        }
+
+        function closeProductDetails() {
+            $('product-details-modal').classList.add('hidden');
+            syncScrollLock();
+        }
+
         /* ================= السلة ================= */
         function updateBadge(bump) {
             const b = $('cart-badge');
@@ -1231,79 +1567,6 @@
             renderProducts();
         }
  
-        // ينسخ نص الطلب للحافظة (Clipboard)، مع بديل احتياطي للمتصفحات القديمة
-        function copyTextToClipboard(text) {
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                return navigator.clipboard.writeText(text);
-            }
-            return new Promise((resolve, reject) => {
-                try {
-                    const ta = document.createElement('textarea');
-                    ta.value = text;
-                    ta.style.position = 'fixed';
-                    ta.style.opacity = '0';
-                    document.body.appendChild(ta);
-                    ta.focus();
-                    ta.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(ta);
-                    resolve();
-                } catch (err) { reject(err); }
-            });
-        }
- 
-        // إتمام الطلب عبر انستكرام: ينسخ تفاصيل الطلب وينبّه الزبونة بضرورة لصقها داخل المحادثة قبل فتح انستكرام
-        const INSTAGRAM_USERNAME = 'athar_cosmetic';
-        function checkoutViaInstagram() {
-            const text = buildOrderText(true);
-            if (!text) return;
-            copyTextToClipboard(text).then(() => {
-                deductStockForCart();
-                showCustomAlert('تم نسخ تفاصيل الطلب ✅', '', false, {
-                    warn: 'مهم جداً: تم نسخ تفاصيل طلبك تلقائياً، بعد ما تنفتح محادثة البيج، ألصقي الطلب (Paste) داخل المحادثة وأرسليه حتى يصل بشكل صحيح.',
-                    confirmText: 'فتح تطبيق الانستكرام الآن',
-                    onConfirm: openInstagramApp
-                });
-            }).catch(() => {
-                showCustomAlert('تنبيه', `تعذر نسخ الطلب تلقائياً. يرجى مراسلتنا مباشرة على انستكرام ${INSTAGRAM_USERNAME}@ وكتابة طلبك يدوياً.`, true);
-            });
-        }
- 
-        // يفتح محادثة الانستكرام المباشرة (الدايركت) مع البيج
-        // يعمل على الهاتف (يفتح التطبيق) وعلى الكمبيوتر (يفتح المتصفح)
-        function openInstagramApp() {
-            const user = INSTAGRAM_USERNAME;
-            const webProfile = `https://www.instagram.com/${user}/`;
-            const ua = navigator.userAgent || '';
-            const isAndroid = /Android/i.test(ua);
-            const isIOS = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-
-            // الكمبيوتر: نفتح محادثة الويب مباشرة
-            if (!isAndroid && !isIOS) {
-                window.open(`https://ig.me/m/${user}`, '_blank');
-                return;
-            }
-
-            // الموبايل: نفتح محادثة البيج داخل التطبيق مباشرة، ثم تلصق الزبونة الطلب
-            // وإذا ما انفتح التطبيق خلال ثانيتين (مو منصّب) نفتح الصفحة على الويب
-            let opened = false;
-            const onHide = () => { if (document.hidden) opened = true; };
-            document.addEventListener('visibilitychange', onHide);
-            window.addEventListener('pagehide', () => { opened = true; }, { once: true });
-            setTimeout(() => {
-                document.removeEventListener('visibilitychange', onHide);
-                if (!opened && !document.hidden) window.location.href = webProfile;
-            }, 2000);
-
-            if (isAndroid) {
-                // يفتح تطبيق انستكرام على محادثة البيج مباشرة (نفس رابط ig.me لكن مسلَّم للتطبيق)
-                window.location.href = `intent://ig.me/m/${user}#Intent;package=com.instagram.android;scheme=https;S.browser_fallback_url=${encodeURIComponent(webProfile)};end`;
-            } else {
-                // آيفون: التنقل بنفس الصفحة (مو نافذة جديدة) حتى يسلّمه النظام لتطبيق انستكرام
-                window.location.href = `https://ig.me/m/${user}`;
-            }
-        }
- 
         /* ================= التصنيفات الفرعية ================= */
         function subsOf(catName) {
             const c = categories.find((x) => x.name === catName);
@@ -1348,34 +1611,85 @@
             if (prev) sel.value = prev;
         }
  
+        const categorySubSaveQueues = new Map();
+
+        function refreshAfterSubcategoryChange() {
+            persist('categories', categories);
+            renderCategories();
+            renderProducts();
+            renderAdminTables();
+            fillSubParentSelect();
+            fillAdminSubSelect($('p-subcategory') ? $('p-subcategory').value : '');
+        }
+
         function updateCategorySubs(cat, subs) {
-            if (isOfflineMode || !db) {
-                cat.subcategories = subs;
-                persist('categories', categories);
-                renderCategories();
-                renderProducts();
-                renderAdminTables();
-            } else {
-                fb.updateDoc(fb.doc(db, 'categories', cat.id), { subcategories: subs }).catch(saveError);
+            if (!cat) return Promise.resolve(false);
+            const cleanSubs = [...new Set((Array.isArray(subs) ? subs : [])
+                .map((value) => String(value || '').trim())
+                .filter((value) => value && value !== 'الكل'))];
+
+            // تحديث فوري محلي حتى تظهر الإضافة والحذف مباشرة في لوحة التحكم والمتجر.
+            cat.subcategories = cleanSubs;
+            refreshAfterSubcategoryChange();
+
+            if (isOfflineMode || !db || !fb) {
+                warnLocalOnce();
+                return Promise.resolve(true);
             }
+
+            // تسلسل عمليات الحفظ لنفس التصنيف يمنع الكتابات المتتابعة من استبدال بعضها.
+            const previous = categorySubSaveQueues.get(cat.id) || Promise.resolve();
+            const savePromise = previous.catch(() => {}).then(() =>
+                fb.updateDoc(fb.doc(db, 'categories', cat.id), {
+                    subcategories: [...(cat.subcategories || [])]
+                })
+            );
+            categorySubSaveQueues.set(cat.id, savePromise);
+            return savePromise.then(() => true).catch((err) => {
+                saveError(err);
+                return false;
+            }).finally(() => {
+                if (categorySubSaveQueues.get(cat.id) === savePromise) categorySubSaveQueues.delete(cat.id);
+            });
         }
  
-        function saveSubcategory(e) {
+        async function saveSubcategory(e) {
             e.preventDefault();
-            const parent = $('sub-parent-select').value;
-            const names = $('sub-name-input').value.split(/[,،]/).map((x) => x.trim()).filter((x) => x && x !== 'الكل');
+            const parent = $('sub-parent-select').value.trim();
+            const input = $('sub-name-input');
+            const names = input.value.split(/[,،]/).map((x) => x.trim()).filter((x) => x && x !== 'الكل');
             const cat = categories.find((c) => c.name === parent && c.name !== 'الكل');
-            if (!cat || !names.length) return;
-            updateCategorySubs(cat, [...new Set([...(cat.subcategories || []), ...names])]);
-            $('sub-name-input').value = '';
-            showToast('تم حفظ التصنيف الفرعي');
+            if (!cat) {
+                showCustomAlert('اختاري التصنيف الرئيسي', 'يجب اختيار تصنيف رئيسي قبل إضافة التصنيف الفرعي.', true);
+                return;
+            }
+            if (!names.length) {
+                showCustomAlert('اكتبي اسم التصنيف الفرعي', 'أدخلي اسم تصنيف فرعي واحد على الأقل.', true);
+                input.focus();
+                return;
+            }
+            const existing = Array.isArray(cat.subcategories) ? cat.subcategories : [];
+            const added = names.filter((name) => !existing.includes(name));
+            if (!added.length) {
+                showToast('هذه التصنيفات الفرعية مضافة مسبقاً');
+                return;
+            }
+            const button = e.submitter;
+            if (button) button.disabled = true;
+            const saved = await updateCategorySubs(cat, [...existing, ...added]);
+            if (button) button.disabled = false;
+            if (!saved) return;
+            input.value = '';
+            showToast(isOfflineMode || !db ? 'تم الحفظ على هذا الجهاز فقط' : 'تم حفظ التصنيف الفرعي');
         }
  
-        function deleteSubcategory(catId, name) {
-            if (!confirm(`حذف التصنيف الفرعي "${name}"؟ المنتجات المرتبطة به تبقى ظاهرة ضمن التصنيف الرئيسي.`)) return;
+        async function deleteSubcategory(catId, name) {
             const cat = categories.find((c) => c.id === catId);
-            if (!cat) return;
-            updateCategorySubs(cat, (cat.subcategories || []).filter((x) => x !== name));
+            if (!cat || !name) return;
+            if (!confirm(`حذف التصنيف الفرعي "${name}"؟ المنتجات المرتبطة به ستبقى ضمن التصنيف الرئيسي.`)) return;
+            const updated = (Array.isArray(cat.subcategories) ? cat.subcategories : []).filter((x) => x !== name);
+            const saved = await updateCategorySubs(cat, updated);
+            if (saved) showToast(isOfflineMode || !db ? 'تم الحذف محلياً على هذا الجهاز' : 'تم حذف التصنيف الفرعي');
         }
  
         /* ================= لوحة التحكم ================= */
@@ -1459,7 +1773,7 @@
         }
  
         /* ================= رفع الصور إلى Firebase Storage ================= */
-        const MAX_IMAGES = 5;
+        const MAX_IMAGES = 1;
         let productImages = Array(MAX_IMAGES).fill('');
         let uploadingSlots = Array(MAX_IMAGES).fill(false);
 
@@ -1478,7 +1792,7 @@
                         ${src ? `<img src="${esc(cldUrl(src, 300))}" data-orig="${esc(src)}" onerror="imgErr(this,'prod')" class="w-full h-full object-contain">` : `<i class="fa-solid fa-image text-stone-300 text-2xl"></i>`}
                         ${uploadingSlots[i] ? `<div class="absolute inset-0 bg-white/70 flex items-center justify-center"><i class="fa-solid fa-spinner fa-spin text-blue-700 text-lg"></i></div>` : ''}
                         ${src && !uploadingSlots[i] ? `<button type="button" onclick="removeImageSlot(${i})" class="absolute top-1 left-1 w-6 h-6 bg-red-600 text-white rounded-full text-[10px] flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>` : ''}
-                        <span class="absolute bottom-1 right-1 bg-white/90 text-blue-800 text-[10px] font-bold px-1.5 py-0.5 rounded">${i === 0 ? 'رئيسية' : i + 1}</span>
+                        <span class="absolute bottom-1 right-1 bg-white/90 text-blue-800 text-[10px] font-bold px-1.5 py-0.5 rounded">صورة المنتج</span>
                     </div>
                     <label class="mt-2 w-full flex items-center justify-center gap-1.5 bg-white border border-dashed border-blue-300 hover:bg-blue-50 text-blue-800 font-bold text-xs py-2 rounded-xl cursor-pointer active:scale-95">
                         <i class="fa-solid fa-cloud-arrow-up"></i> ${src ? 'تغيير' : 'رفع'}
@@ -1496,7 +1810,8 @@
         // ترجع صور المنتج (تدعم المنتجات القديمة اللي عندها صورة وحدة)
         function getImages(p) {
             const arr = Array.isArray(p.images) && p.images.length ? p.images : (p.image ? [p.image] : []);
-            return arr.filter(Boolean).slice(0, MAX_IMAGES);
+            // المنتجات القديمة التي تحتوي عدة صور تحتفظ بالصورة الأولى فقط.
+            return arr.filter(Boolean).slice(0, 1);
         }
 
         async function handleImageFileSelect(e, idx) {
@@ -1894,7 +2209,7 @@
                 price: Number(($('p-price').value || '').replace(/,/g, '')) || 0,
                 stock: stockRaw === '' ? null : Math.max(0, parseInt(stockRaw, 10) || 0),
                 image: imgs[0] || '',
-                images: imgs,
+                images: imgs.slice(0, 1),
                 description,
             };
             if (!id) data.createdAt = Date.now();
@@ -2237,8 +2552,8 @@
                 list.sort((a, b) => (a.name === 'الكل' ? -1 : 0) - (b.name === 'الكل' ? -1 : 0));
 
                 // لا نقارن الصور Base64 كاملة؛ يكفي مقارنة العدد والـ IDs والأسماء والترتيب.
-                const signature = list.map(c => `${c.id}|${c.name}|${c.order || 0}`).join('~~');
-                const currentSignature = categories.map(c => `${c.id}|${c.name}|${c.order || 0}`).join('~~');
+                const signature = list.map(c => `${c.id}|${c.name}|${c.order || 0}|${JSON.stringify(Array.isArray(c.subcategories) ? c.subcategories : [])}`).join('~~');
+                const currentSignature = categories.map(c => `${c.id}|${c.name}|${c.order || 0}|${JSON.stringify(Array.isArray(c.subcategories) ? c.subcategories : [])}`).join('~~');
 
                 if (signature !== currentSignature) {
                     categories = list;
