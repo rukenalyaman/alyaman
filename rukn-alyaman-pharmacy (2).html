@@ -638,20 +638,20 @@
     -->
     <script>
         /* ================= الإعدادات والأدوات ================= */
-        // إعدادات مشروع فايربيس الجديد (athar-e00bf)
+        // إعدادات مشروع فايربيس (rukenalyaman)
         const firebaseConfig = {
-            apiKey: "AIzaSyBOeBszexRWhAOC80ixGiWZseRX4ks_ipQ",
-            authDomain: "athar-e00bf.firebaseapp.com",
-            projectId: "athar-e00bf",
-            storageBucket: "athar-e00bf.firebasestorage.app",
-            messagingSenderId: "264890265095",
-            appId: "1:264890265095:web:24e706e7e5fa8570d044a2",
-            measurementId: "G-2FMK3EBME5"
+            apiKey: "AIzaSyADaPpVhLBfZ7IFxaYUhAcbloWcWAUrPbQ",
+            authDomain: "rukenalyaman.firebaseapp.com",
+            projectId: "rukenalyaman",
+            storageBucket: "rukenalyaman.firebasestorage.app",
+            messagingSenderId: "18605984752",
+            appId: "1:18605984752:web:919d1cc58c6eedd8026b35",
+            measurementId: "G-6902EQBWY9"
         };
 
         // Cloudinary: رفع الصور مباشرة من جهاز المستخدم بدون Firebase Storage
-        const CLOUDINARY_CLOUD_NAME = "dnqgbond";
-        const CLOUDINARY_UPLOAD_PRESET = "athar_upload";
+        const CLOUDINARY_CLOUD_NAME = "jfwuylur";
+        const CLOUDINARY_UPLOAD_PRESET = "athar-e00bf1";
         const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
  
         const $ = (id) => document.getElementById(id);
@@ -1514,7 +1514,7 @@
                 const msg = err.message === 'cloudinary-config-missing' ? 'إعدادات Cloudinary غير موجودة في الكود.'
                     : err.message === 'image-too-large' ? 'حجم الصورة كبير جداً. الحد الأقصى 10MB.'
                     : err.message === 'invalid-image' ? 'الملف المختار ليس صورة صالحة.'
-                    : `تعذر رفع الصورة إلى Cloudinary: ${err.message || 'تحققي من الاتصال وإعدادات Upload Preset athar_upload.'}`;
+                    : `تعذر رفع الصورة إلى Cloudinary: ${err.message || 'تحققي من الاتصال وإعدادات Upload Preset athar-e00bf1.'}`;
                 showCustomAlert('خطأ في رفع الصورة', msg, true);
             } finally {
                 uploadingSlots[idx] = false;
@@ -1738,7 +1738,7 @@
                 preview.src = '';
                 preview.classList.add('hidden');
                 status.textContent = 'تعذر رفع الصورة.';
-                showCustomAlert('خطأ في رفع الصورة', 'تعذر رفع صورة التصنيف إلى Cloudinary. تأكدي من أن Upload Preset باسم athar_upload مضبوط على Unsigned.', true);
+                showCustomAlert('خطأ في رفع الصورة', 'تعذر رفع صورة التصنيف إلى Cloudinary. تأكدي من أن Upload Preset باسم athar-e00bf1 مضبوط على Unsigned.', true);
             } finally {
                 URL.revokeObjectURL(localPreview);
                 imageUploadBusy = false;
@@ -1767,7 +1767,7 @@
                 preview.src = '';
                 preview.classList.add('hidden');
                 status.textContent = 'تعذر رفع الشعار.';
-                showCustomAlert('خطأ في رفع الشعار', 'تعذر رفع الشعار إلى Cloudinary. تأكدي من أن Upload Preset باسم athar_upload مضبوط على Unsigned.', true);
+                showCustomAlert('خطأ في رفع الشعار', 'تعذر رفع الشعار إلى Cloudinary. تأكدي من أن Upload Preset باسم athar-e00bf1 مضبوط على Unsigned.', true);
             } finally {
                 URL.revokeObjectURL(localPreview);
                 imageUploadBusy = false;
