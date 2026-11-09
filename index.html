@@ -29,10 +29,12 @@
     <!-- Font Awesome وخط Cairo: تحميل غير معيق (async) حتى ما يأخرون أول ظهور للواجهة -->
     <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" onload="this.onload=null;this.rel='stylesheet'">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=block">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lemonada:wght@400;500;600;700&display=swap">
     <noscript>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lemonada:wght@400;500;600;700&display=swap">
     </noscript>
     <style>
         /* خط أنيق خاص بقسم إضافة/تعديل المنتجات فقط */
@@ -328,7 +330,23 @@
             }
         }
 
-</style>
+
+        /* الخط الجديد المستوحى من الصورة المرجعية — للنصوص المطلوبة فقط */
+        #welcome h2,
+        #welcome h2 span,
+        #store-brand-copy h1,
+        .hero-brand h2,
+        .hero .hero-tagline,
+        .hero .hero-categories {
+            font-family: 'Lemonada', 'Cairo', sans-serif !important;
+            font-weight: 800;
+        }
+        #welcome h2,
+        #hero .hero-brand h2 {
+            font-weight: 900;
+        }
+
+    </style>
 </head>
 <body class="min-h-screen flex flex-col bg-[#f8faff]">
     <div id="welcome" role="dialog" aria-label="ترحيب">
@@ -352,7 +370,7 @@
         var h=w.querySelector('h2');
         function showTitle(){ if(shown) return; shown=true; if(h) h.classList.add('show'); }
         // ننتظر الخط الغليظ حتى يظهر العنوان مرة وحدة بدون تبديل (حد أقصى 2.5 ثانية)
-        try{ document.fonts.load('900 40px Cairo','نورتوا صيدلية ركن اليمان').then(showTitle,showTitle); }catch(e){ showTitle(); }
+        try{ document.fonts.load('700 40px Lemonada','نورتوا صيدلية ركن اليمان').then(showTitle,showTitle); }catch(e){ showTitle(); }
         setTimeout(showTitle,2500);
         function close(){
             if(done) return; done=true;
