@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- منع التخزين المؤقت للصفحة (يفيد مع متصفحات التطبيقات الداخلية) -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta http-equiv="Surrogate-Control" content="no-store">
     <title>صيدلية ركن اليمان</title>
  
     <!-- تسريع الاتصال بالخدمات الخارجية -->
@@ -1002,12 +1007,10 @@
  
         /* ================= الكاش المحلي (أول عرض فوري) ================= */
         const CACHE_KEY = 'athar_cache_v2';
+        // التخزين المؤقت للبيانات معطّل: كل زيارة تقرأ أحدث بيانات من السيرفر، ونمسح أي كاش قديم.
         let cache = {};
-        try { cache = JSON.parse(localStorage.getItem(CACHE_KEY)) || {}; } catch (e) { cache = {}; }
-        function persist(key, val) {
-            cache[key] = val;
-            try { localStorage.setItem(CACHE_KEY, JSON.stringify(cache)); } catch (e) { /* التخزين ممتلئ أو ممنوع */ }
-        }
+        try { localStorage.removeItem(CACHE_KEY); localStorage.removeItem('athar_cache_v1'); } catch (e) { /* ممنوع */ }
+        function persist(key, val) { cache[key] = val; }   // بالذاكرة فقط (تنتهي بإغلاق الصفحة)
  
         /* ================= الحالة ================= */
         const defaultCategories = [
@@ -2559,12 +2562,10 @@
                     fb = fsM;
                     const app = appM.initializeApp(firebaseConfig);
 
-                    // تفعيل Offline Cache بشكل آمن. إذا المتصفح لا يدعمه، نستخدم Firestore العادي.
+                    // كاش بالذاكرة فقط (بدون تخزين دائم). إذا فشل نستخدم Firestore العادي.
                     try {
                         db = fsM.initializeFirestore(app, {
-                            localCache: fsM.persistentLocalCache({
-                                tabManager: fsM.persistentMultipleTabManager()
-                            })
+                            localCache: fsM.memoryLocalCache()   // بدون كاش دائم على الجهاز
                         });
                     } catch (cacheErr) {
                         console.warn('Persistent Firestore cache unavailable; using normal Firestore:', cacheErr);
@@ -2711,6 +2712,23 @@
             // المنتجات: أول 4 فقط، والباقي عند النزول أو تغيير التصنيف
             fetchProductsPage('الكل', true);
         }
+
+        // تحديث المنتجات فوراً: عند الرجوع للصفحة من الخلفية أو من سجل المتصفح (bfcache في متصفحات التطبيقات)
+        let hiddenAt = 0;
+        function refreshLatestProducts() {
+            if (!db || !fb || loading) return;
+            Object.keys(remote).forEach((k) => delete remote[k]);
+            allLoaded = false;
+            fetchProductsPage('الكل', true).then(() => {
+                if (currentSelectedCategory !== 'الكل') fetchProductsPage(currentSelectedCategory, true);
+                if (adminOpen) loadAllProducts(true);
+            });
+        }
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) hiddenAt = Date.now();
+            else if (hiddenAt && Date.now() - hiddenAt > 20000) refreshLatestProducts();
+        });
+        window.addEventListener('pageshow', (e) => { if (e.persisted) refreshLatestProducts(); });
 
         // البانر: نوقف حركته لما ينزل الزبون عنه حتى يبقى التمرير سلس
         (function () {
