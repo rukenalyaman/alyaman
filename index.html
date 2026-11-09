@@ -2272,10 +2272,20 @@
                 warnLocalOnce();
             } else {
                 const op = id ? fb.updateDoc(fb.doc(db, 'products', id), data) : fb.addDoc(fb.collection(db, 'products'), data);
-                op.then(() => {
+                op.then((ref) => {
+                    const pid = id || (ref && ref.id);
+                    if (pid) {
+                        const idx = products.findIndex((x) => x.id === pid);
+                        if (idx > -1) products[idx] = { ...products[idx], ...data, id: pid };
+                        else products.push({ id: pid, ...data });
+                        rebuildIndex();
+                        persist('products', products);
+                        renderProducts();
+                        renderAdminTables();
+                    }
                     resetProductForm();
                     showToast('تم حفظ المنتج');
-                    loadAllProducts(true);
+                    loadAllProducts(true);   // مزامنة بالخلفية مع السيرفر
                 }).catch(saveError);
             }
         }
@@ -2305,7 +2315,14 @@
                 renderProducts();
                 renderAdminTables();
             } else {
-                fb.deleteDoc(fb.doc(db, 'products', id)).then(() => loadAllProducts(true)).catch(saveError);
+                fb.deleteDoc(fb.doc(db, 'products', id)).then(() => {
+                    products = products.filter((x) => x.id !== id);
+                    rebuildIndex();
+                    persist('products', products);
+                    renderProducts();
+                    renderAdminTables();
+                    loadAllProducts(true);
+                }).catch(saveError);
             }
         }
  
@@ -2624,7 +2641,7 @@
         function loadAllProducts(force) {
             if (!db || !fb) return Promise.resolve();
             if (allLoaded && !force) return Promise.resolve();
-            if (allPromise) return allPromise;
+            if (allPromise) return force ? allPromise.then(() => loadAllProducts(true)) : allPromise;
             allPromise = readDocs(fb.collection(db, 'products')).then((snap) => {
                 products = cleanDocs(snap);
                 rebuildIndex();
