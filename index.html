@@ -46,6 +46,8 @@
         }
 
         #welcome{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;padding:1rem;background:#fbf1e9;font-family:'Cairo','Segoe UI',Tahoma,Arial,sans-serif;transition:opacity .4s ease,visibility .4s;overflow:hidden}
+        footer{content-visibility:auto;contain-intrinsic-size:auto 170px}
+        .hero.hero-paused *{animation-play-state:paused !important}
         #welcome.hide{opacity:0;visibility:hidden}
         #welcome .w-tile{width:92px;height:92px;border-radius:28px;background:#dbeafe;display:flex;align-items:center;justify-content:center;box-shadow:0 18px 36px -10px rgba(37,99,235,.45);animation:w-float 2.2s ease-in-out infinite}
         #welcome .w-tile svg{width:56px;height:56px;animation:w-spin 2.2s ease-in-out infinite}
@@ -1122,7 +1124,7 @@
             c.innerHTML = sorted.map((cat) => `
                 <button type="button" class="cat-btn flex flex-col items-center min-w-[80px] max-w-[92px] gap-2" data-cat="${esc(cat.name)}">
                     <div class="cat-thumb w-16 h-16 rounded-2xl overflow-hidden shadow-sm bg-blue-100">
-                        <img src="${esc(cldUrl(cat.image || svgAll, 160))}" data-orig="${esc(cat.image || svgAll)}" alt="${esc(cat.name)}" width="64" height="64" decoding="async" class="img-fade w-full h-full object-cover" onload="this.classList.add('loaded')" onerror="imgErr(this,'cat')">
+                        <img src="${esc(cldUrl(cat.image || svgAll, 160))}" data-orig="${esc(cat.image || svgAll)}" alt="${esc(cat.name)}" width="64" height="64" loading="lazy" decoding="async" class="img-fade w-full h-full object-cover" onload="this.classList.add('loaded')" onerror="imgErr(this,'cat')">
                     </div>
                     <span class="cat-label text-[10px] font-bold leading-4 text-center break-words w-full px-1">${esc(cat.name)}</span>
                 </button>`).join('');
@@ -1382,7 +1384,13 @@
             const image = $('product-details-image');
             image.onerror = function () { imgErr(this, 'prod'); };
             image.dataset.orig = imageUrl;
-            image.src = cldUrl(imageUrl, 900);
+            image.src = cldUrl(imageUrl, 600);   // نفس رابط الكارت = ظاهرة فوراً من الكاش
+            const hi = cldUrl(imageUrl, 900);
+            if (hi !== image.src) {              // نسخة أوضح تتحمل بالخلفية وتبدّل بدون وميض
+                const big = new Image();
+                big.onload = () => { if (image.dataset.orig === imageUrl) image.src = hi; };
+                big.src = hi;
+            }
             image.alt = product.name || 'صورة المنتج';
 
             $('product-details-title').textContent = 'تفاصيل المنتج';
@@ -2703,6 +2711,13 @@
             // المنتجات: أول 4 فقط، والباقي عند النزول أو تغيير التصنيف
             fetchProductsPage('الكل', true);
         }
+
+        // البانر: نوقف حركته لما ينزل الزبون عنه حتى يبقى التمرير سلس
+        (function () {
+            const hero = document.querySelector('.hero');
+            if (!hero || !('IntersectionObserver' in window)) return;
+            new IntersectionObserver((en) => hero.classList.toggle('hero-paused', !en[0].isIntersecting)).observe(hero);
+        })();
 
         /* ================= التشغيل ================= */
         applyLogo();
