@@ -23,7 +23,7 @@
 
     <!-- Font Awesome وخط Cairo: تحميل غير معيق (async) حتى ما يأخرون أول ظهور للواجهة -->
     <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=block">
     <noscript>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap">
@@ -49,7 +49,8 @@
         #welcome.hide{opacity:0;visibility:hidden}
         #welcome .w-tile{width:92px;height:92px;border-radius:28px;background:#dbeafe;display:flex;align-items:center;justify-content:center;box-shadow:0 18px 36px -10px rgba(37,99,235,.45);animation:w-float 2.2s ease-in-out infinite}
         #welcome .w-tile svg{width:56px;height:56px;animation:w-spin 2.2s ease-in-out infinite}
-        #welcome h2{font-size:clamp(26px,7.5vw,40px);font-weight:900;color:#1e3a8a;margin:0;text-align:center;line-height:1.5;animation:w-pop .6s ease}
+        #welcome h2{font-size:clamp(26px,7.5vw,40px);font-weight:900;color:#1e3a8a;margin:0;text-align:center;line-height:1.5;opacity:0}
+        #welcome h2.show{animation:w-pop .6s ease forwards}
         #welcome h2 span{color:inherit}
         #welcome .w-bar{width:220px;max-width:70vw;height:6px;border-radius:9999px;background:#dbeafe;overflow:hidden}
         #welcome .w-bar i{display:block;height:100%;width:0;border-radius:9999px;background:linear-gradient(90deg,#3b82f6,#2563eb);animation:w-fill 4s linear forwards}
@@ -340,14 +341,23 @@
     (function(){
         var w=document.getElementById('welcome');
         if(!w) return;
-        var done=false;
-        window.closeWelcome=function(){
+        var done=false, minDone=false, dataOk=false, shown=false;
+        var h=w.querySelector('h2');
+        function showTitle(){ if(shown) return; shown=true; if(h) h.classList.add('show'); }
+        // ننتظر الخط الغليظ حتى يظهر العنوان مرة وحدة بدون تبديل (حد أقصى 2.5 ثانية)
+        try{ document.fonts.load('900 40px Cairo','نورتوا صيدلية ركن اليمان').then(showTitle,showTitle); }catch(e){ showTitle(); }
+        setTimeout(showTitle,2500);
+        function close(){
             if(done) return; done=true;
             w.classList.add('hide');
             setTimeout(function(){ w.remove(); },450);
-        };
-        // يبقى الخط يصغر من الجوانب 4 ثواني ثم تفتح الواجهة الرئيسية
-        setTimeout(window.closeWelcome,4000);
+        }
+        window.closeWelcome=close;
+        function check(){ if(minDone&&dataOk) close(); }
+        // الترحيب 4 ثواني على الأقل، ويبقى لحد ما تجهز الصفحة الأولى (حد أقصى 8 ثواني)
+        setTimeout(function(){ minDone=true; check(); },4000);
+        window.welcomeDataReady=function(){ dataOk=true; check(); };
+        setTimeout(close,8000);
     })();
     </script>
  
@@ -609,7 +619,8 @@
                         <div>
                             <label class="block text-xs font-bold text-stone-700 mb-1">المحافظة:</label>
                             <select id="customer-province" onchange="updateCartTotals()" class="w-full px-3.5 py-2.5 bg-white border border-blue-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all">
-                                <option value="بابل" data-fee="3000" selected>بابل (3,000 د.ع)</option>
+                                <option value="" data-fee="5000" selected disabled>اختر المحافظة</option>
+                                <option value="بابل" data-fee="5000">بابل (5,000 د.ع)</option>
                                 <option value="بغداد" data-fee="5000">بغداد (5,000 د.ع)</option>
                                 <option value="البصرة" data-fee="5000">البصرة (5,000 د.ع)</option>
                                 <option value="نينوى" data-fee="5000">نينوى (5,000 د.ع)</option>
@@ -644,7 +655,7 @@
                 </div>
                 <div class="flex justify-between items-center text-xs text-stone-600">
                     <span>قيمة التوصيل:</span>
-                    <span id="cart-shipping-fee" class="font-bold">3,000 د.ع</span>
+                    <span id="cart-shipping-fee" class="font-bold">5,000 د.ع</span>
                 </div>
                 <div id="discount-row" class="flex justify-between items-center text-xs text-emerald-600 font-bold hidden">
                     <span id="discount-label-text">الخصم المطبق:</span>
@@ -1170,7 +1181,7 @@
         }
  
         function productCard(p, idx) {
-            const eager = idx !== undefined && idx < 2;   // أول صورتين فقط تتحمل فوراً
+            const eager = idx !== undefined && idx < 4;   // أول 4 صور تتحمل فوراً
             const price = Number(p.price) || 0;
             const dv = activePercent();
             let badge = '';
@@ -1221,7 +1232,7 @@
             const countBadge = $('products-count');
  
             if (loading) {
-                grid.innerHTML = Array.from({ length: 8 }, productSkeleton).join('');
+                grid.innerHTML = Array.from({ length: 4 }, productSkeleton).join('');
                 countBadge.textContent = '…';
                 noProducts.classList.add('hidden');
                 return;
@@ -1278,7 +1289,13 @@
         }
 
         function loadMoreProducts() {
-            if (loading || visibleCount >= lastFiltered.length) return;
+            if (loading) return;
+            if (visibleCount >= lastFiltered.length) {
+                if (!db || !fb || allLoaded) return;
+                if (searchQuery.trim()) loadAllProducts();
+                else fetchProductsPage(currentSelectedCategory, !remote[currentSelectedCategory]);
+                return;
+            }
             const grid = $('products-grid');
             const from = visibleCount;
             visibleCount += PAGE_SIZE;
@@ -1294,6 +1311,7 @@
             searchQuery = val;
             $('clear-search-btn').classList.toggle('hidden', val.length === 0);
             clearTimeout(searchTimer);
+            if (val.trim()) loadAllProducts();   // البحث يحتاج كل المنتجات (مرة وحدة)
             searchTimer = setTimeout(renderProducts, 120);   // تأخير بسيط حتى ما نعيد الرسم مع كل حرف
         }
         function clearSearch() {
@@ -1316,6 +1334,7 @@
             updateCategoryActive();
             renderSubcategories();   // تحديث الحالة فقط بدون إعادة بناء التصنيفات
             renderProducts();
+            if (!remote[name]) fetchProductsPage(name, true);   // أول 4 منتجات من هذا التصنيف
         }
  
         // Event delegation: مستمع واحد بدل عشرات الأزرار
@@ -1540,6 +1559,7 @@
             const phone = $('customer-phone').value.trim();
             const prov = $('customer-province').value;
             const area = $('customer-area').value.trim();
+            if (!prov) { showCustomAlert('نقص بيانات', 'يرجى اختيار المحافظة.', true); return null; }
             if (!name || !phone || !area) { showCustomAlert('نقص بيانات', 'يرجى إكمال بيانات العنوان والهاتف.', true); return null; }
  
             const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
@@ -1557,7 +1577,7 @@
         function checkoutViaWhatsApp() {
             const text = buildOrderText(false);
             if (!text) return;
-            window.open(`https://wa.me/9647724700027?text=${encodeURIComponent(text)}`, '_blank');
+            window.open(`https://wa.me/9647887967478?text=${encodeURIComponent(text)}`, '_blank');
             deductStockForCart();
         }
 
@@ -1734,6 +1754,7 @@
                 switchAdminTab('products');
                 syncScrollLock();
                 renderAdminTables();
+                loadAllProducts();
                 showDbStatusIfProblem();
             } else {
                 showCustomAlert('خطأ', 'كلمة المرور غير صحيحة.', true);
@@ -2254,6 +2275,7 @@
                 op.then(() => {
                     resetProductForm();
                     showToast('تم حفظ المنتج');
+                    loadAllProducts(true);
                 }).catch(saveError);
             }
         }
@@ -2283,7 +2305,7 @@
                 renderProducts();
                 renderAdminTables();
             } else {
-                fb.deleteDoc(fb.doc(db, 'products', id)).catch(saveError);
+                fb.deleteDoc(fb.doc(db, 'products', id)).then(() => loadAllProducts(true)).catch(saveError);
             }
         }
  
@@ -2468,6 +2490,7 @@
                 loading = false;
                 renderCategories();
                 renderProducts();
+                if (window.welcomeDataReady) window.welcomeDataReady();
             }
         }
 
@@ -2482,6 +2505,7 @@
             }
             renderCategories();
             renderProducts();
+            if (window.welcomeDataReady) window.welcomeDataReady();
         }
 
         function goOffline() {
@@ -2549,6 +2573,70 @@
             return firebasePromise;
         }
 
+        /* ===== جلب المنتجات من Firestore على دفعات (أول 4 ثم 8 كل مرة) ===== */
+        const remote = {};              // لكل تصنيف: مؤشر آخر منتج وهل انتهت المنتجات
+        let allLoaded = false;
+        let allPromise = null;
+        const cleanDocs = (snap) => snap.docs.filter((d) => !d.id.startsWith('__')).map((d) => ({ id: d.id, ...d.data() }));
+        async function readDocs(q) {
+            try { return await withTimeout(fb.getDocsFromServer(q), 12000); }
+            catch (e) { if (e && e.code === 'failed-precondition') throw e; return await withTimeout(fb.getDocs(q), 12000); }
+        }
+        function mergeProducts(list) {
+            const m = new Map(products.map((p) => [p.id, p]));
+            list.forEach((p) => m.set(p.id, p));
+            products = [...m.values()];
+            rebuildIndex();
+            persist('products', products);
+        }
+        async function fetchProductsPage(cat, first) {
+            if (!db || !fb || allLoaded) return;
+            const st = remote[cat] || (remote[cat] = { cursor: null, done: false, busy: false, ordered: true });
+            if (st.busy || st.done) return;
+            st.busy = true;
+            const n = first ? 4 : 8;
+            const build = (ordered) => {
+                const c = [];
+                if (cat !== 'الكل') c.push(fb.where('category', '==', cat));
+                if (ordered) c.push(fb.orderBy('createdAt', 'desc'));
+                if (st.cursor) c.push(fb.startAfter(st.cursor));
+                c.push(fb.limit(n));
+                return fb.query(fb.collection(db, 'products'), ...c);
+            };
+            try {
+                let snap;
+                try { snap = await readDocs(build(st.ordered)); }
+                catch (e) { if (!st.ordered) throw e; st.ordered = false; snap = await readDocs(build(false)); }
+                if (snap.docs.length) st.cursor = snap.docs[snap.docs.length - 1];
+                if (snap.docs.length < n) st.done = true;
+                if (first && cat === 'الكل') products = [];   // أول دفعة حقيقية تستبدل الكاش القديم
+                mergeProducts(cleanDocs(snap));
+            } catch (e) {
+                lastDbError = e; st.done = true;
+                console.error('Products page failed:', e);
+            }
+            st.busy = false;
+            const wasLoading = loading;
+            markReady('products');
+            if (!wasLoading) { renderProducts(); if (adminOpen) renderAdminTables(); }
+        }
+        // تحميل كل المنتجات مرة وحدة: للبحث ولوحة التحكم فقط
+        function loadAllProducts(force) {
+            if (!db || !fb) return Promise.resolve();
+            if (allLoaded && !force) return Promise.resolve();
+            if (allPromise) return allPromise;
+            allPromise = readDocs(fb.collection(db, 'products')).then((snap) => {
+                products = cleanDocs(snap);
+                rebuildIndex();
+                persist('products', products);
+                allLoaded = true;
+            }).catch((e) => { lastDbError = e; console.error(e); }).finally(() => {
+                allPromise = null;
+                if (!loading) { renderProducts(); if (adminOpen) renderAdminTables(); }
+            });
+            return allPromise;
+        }
+
         function initFirestoreListeners() {
             if (!db || !fb) return;
 
@@ -2595,69 +2683,8 @@
                 markReady('categories');
             });
 
-            // المنتجات
-            // نقرأ من الكاش أولاً، ثم نطلب نسخة من السيرفر حتى لا يبقى الموقع عالقاً
-            // على Snapshot محلي قديم وفارغ بعد تفعيل Persistent Cache.
-            const applyProductsSnapshot = (snap, source = 'snapshot') => {
-                const list = snap.docs
-                    .filter((d) => !d.id.startsWith('__'))
-                    .map((d) => ({ id: d.id, ...d.data() }));
-
-                // إذا كان أول Snapshot فارغاً وهو من الكاش المحلي، لا نمسح المنتجات الموجودة
-                // بذاكرة الصفحة؛ ننتظر نتيجة السيرفر.
-                if (list.length === 0 && snap.metadata && snap.metadata.fromCache && products.length > 0) {
-                    markReady('products');
-                    return;
-                }
-
-                const same = list.length === products.length && list.every((p) => {
-                    const old = products.find(x => x.id === p.id);
-                    return old && old.name === p.name && old.price === p.price && old.stock === p.stock &&
-                        old.category === p.category && old.subcategory === p.subcategory &&
-                        old.description === p.description && old.image === p.image &&
-                        JSON.stringify(old.images || []) === JSON.stringify(p.images || []);
-                });
-
-                if (!same) {
-                    products = list;
-                    rebuildIndex();
-                    persist('products', list);
-                    renderProducts();
-                    renderAdminTables();
-                }
-                markReady('products');
-            };
-
-            fb.onSnapshot(fb.collection(db, 'products'), (snap) => {
-                applyProductsSnapshot(snap, 'onSnapshot');
-            }, (err) => {
-                lastDbError = err;
-                console.error('Products listener failed:', err);
-                markReady('products');
-                // حتى مع فشل listener، نحاول إجبار قراءة مباشرة من السيرفر.
-                try {
-                    fb.getDocsFromServer(fb.collection(db, 'products'))
-                        .then((serverSnap) => applyProductsSnapshot(serverSnap, 'server-fallback'))
-                        .catch((serverErr) => { lastDbError = serverErr; console.error('Products server read failed:', serverErr); });
-                } catch (serverCallErr) {
-                    console.error('getDocsFromServer unavailable:', serverCallErr);
-                }
-            });
-
-            // قراءة سيرفر صريحة بعد بدء الـ listener، للتأكد أن الكاش المحلي لا يخفي المنتجات القديمة.
-            setTimeout(() => {
-                if (!fb || !db) return;
-                try {
-                    fb.getDocsFromServer(fb.collection(db, 'products'))
-                        .then((serverSnap) => applyProductsSnapshot(serverSnap, 'server-direct'))
-                        .catch((err) => {
-                            lastDbError = err;
-                            console.warn('Direct products server read skipped/failed:', err);
-                        });
-                } catch (err) {
-                    console.warn('Direct products server read unavailable:', err);
-                }
-            }, 1200);
+            // المنتجات: أول 4 فقط، والباقي عند النزول أو تغيير التصنيف
+            fetchProductsPage('الكل', true);
         }
 
         /* ================= التشغيل ================= */
@@ -2669,11 +2696,9 @@
 
         // ابدأ Firebase مباشرة بعد رسم الواجهة. لا يوجد تأخير إضافي؛
         // وإذا كان هناك كاش محلي فـ Firestore يقرأه أولاً.
-        if (hasCache) {
-            ('requestIdleCallback' in window) ? requestIdleCallback(initFirebase, { timeout: 1500 }) : setTimeout(initFirebase, 300);
-        } else {
-            initFirebase();
-        }
+        // يبدأ التحميل فوراً خلف شاشة الترحيب
+        if (!loading && window.welcomeDataReady) window.welcomeDataReady();
+        initFirebase();
 
         // لا نُبقي Skeleton للأبد عند انقطاع الشبكة.
         setTimeout(finishLoadingFallback, 8000);
