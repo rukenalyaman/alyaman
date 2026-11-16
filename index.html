@@ -1204,6 +1204,7 @@
         }
  
         /* ================= رسم المنتجات ================= */
+        // هياكل التحميل الأولية تبقى خلف شاشة الترحيب، وتختفي بمجرد جاهزية أول دفعة.
         function productSkeleton() {
             return `
                 <div class="bg-white rounded-2xl p-3 border border-blue-100 shadow-sm flex flex-col h-full">
@@ -1226,7 +1227,7 @@
         }
  
         function productCard(p, idx) {
-            const eager = idx !== undefined && idx < 4;   // أول 4 صور تتحمل فوراً
+            const eager = idx !== undefined && idx < 8;   // أول 8 صور تتحمل فوراً
             const price = Number(p.price) || 0;
             const dv = activePercent();
             let badge = '';
@@ -1278,7 +1279,7 @@
  
             if (loading) {
                 renderedHtml = [];
-                grid.innerHTML = Array.from({ length: 4 }, productSkeleton).join('');
+                grid.innerHTML = Array.from({ length: 8 }, productSkeleton).join('');
                 countBadge.textContent = '…';
                 noProducts.classList.add('hidden');
                 return;
@@ -1323,9 +1324,9 @@
             updateExploreBanner();
         }
 
-        /* ===== التحميل الكسول: الرئيسية 4 منتجات فقط، وداخل التصنيفات دفعات من 6 بأنميشن ناعم ===== */
-        const PAGE_SIZE = 6;      // داخل التصنيفات: 6 منتجات كل دفعة
-        const HOME_LIMIT = 4;     // الصفحة الرئيسية (الكل): 4 فقط
+        /* ===== التحميل الكسول: 8 منتجات في الدفعة، مع ظهور فوري للدفعات عند التمرير ===== */
+        const PAGE_SIZE = 8;      // 8 منتجات في كل دفعة داخل التصنيفات
+        const HOME_LIMIT = 8;     // الصفحة الرئيسية (الكل): 8 منتجات
         let visibleCount = PAGE_SIZE;
         let lastFilterKey = '';
         let lastFiltered = [];
@@ -1404,22 +1405,20 @@
             if (moreBusy) return;
             moreBusy = true;
             const key = lastFilterKey;
-            showMoreSkeleton();
-            setTimeout(() => {
-                moreBusy = false;
-                if (key !== lastFilterKey) { removeMoreSkeleton(); return; }   // تغيّر التصنيف أثناء الانتظار
-                const grid = $('products-grid');
-                const from = visibleCount;
-                visibleCount += PAGE_SIZE;
-                const add = lastFiltered.slice(from, visibleCount).map((p) => productCard(p));
-                removeMoreSkeleton();
-                grid.insertAdjacentHTML('beforeend', add.join(''));
-                renderedHtml = renderedHtml.concat(add);
-                animateNew(grid, true);
-                markLoadedImages(grid);
-                watchSentinel();
-                updateLoadMore();
-            }, 450);
+            const grid = $('products-grid');
+            const from = visibleCount;
+            visibleCount = Math.min(visibleCount + PAGE_SIZE, lastFiltered.length);
+
+            // أظهر الدفعة الموجودة فوراً بلا مربعات انتظار أو شاشة تحميل أثناء التمرير.
+            if (key !== lastFilterKey) { moreBusy = false; return; }
+            const add = lastFiltered.slice(from, visibleCount).map((p) => productCard(p));
+            if (add.length) grid.insertAdjacentHTML('beforeend', add.join(''));
+            renderedHtml = renderedHtml.concat(add);
+            animateNew(grid, true);
+            markLoadedImages(grid);
+            watchSentinel();
+            updateLoadMore();
+            moreBusy = false;
         }
  
         /* ================= البحث والتنقل ================= */
@@ -1451,7 +1450,7 @@
             updateCategoryActive();
             renderSubcategories();   // تحديث الحالة فقط بدون إعادة بناء التصنيفات
             renderProducts();
-            if (!remote[name]) fetchProductsPage(name, true);   // أول 4 منتجات من هذا التصنيف
+            if (!remote[name]) fetchProductsPage(name, true);   // أول 8 منتجات من هذا التصنيف
         }
  
         // Event delegation: مستمع واحد بدل عشرات الأزرار
@@ -2711,7 +2710,7 @@
             return firebasePromise;
         }
 
-        /* ===== جلب المنتجات من Firestore على دفعات (أول 4 ثم 8 كل مرة) ===== */
+        /* ===== جلب المنتجات من Firestore على دفعات من 8 منتجات ===== */
         const remote = {};              // لكل تصنيف: مؤشر آخر منتج وهل انتهت المنتجات
         let allLoaded = false;
         let allPromise = null;
@@ -2732,8 +2731,8 @@
             const st = remote[cat] || (remote[cat] = { cursor: null, done: false, busy: false, ordered: true });
             if (st.busy || st.done) return;
             st.busy = true;
-            if (!first) showMoreSkeleton();
-            const n = cat === 'الكل' ? 4 : 6;
+            // لا نظهر هياكل تحميل عند التمرير؛ نضيف المنتجات فور وصولها.
+            const n = 8;
             const build = (ordered) => {
                 const c = [];
                 if (cat !== 'الكل') c.push(fb.where('category', '==', cat));
@@ -2749,7 +2748,13 @@
                 if (snap.docs.length) st.cursor = snap.docs[snap.docs.length - 1];
                 if (snap.docs.length < n) st.done = true;
                 if (first && cat === 'الكل') products = [];   // أول دفعة حقيقية تستبدل الكاش القديم
-                mergeProducts(cleanDocs(snap));
+                const pageProducts = cleanDocs(snap);
+                mergeProducts(pageProducts);
+                // عند جلب صفحة إضافية للتصنيف المفتوح، وسّع عدد المنتجات المعروضة
+                // حتى تظهر الدفعة الجديدة فور اكتمال جلبها ولا يعاد طلبها بلا نهاية.
+                if (!first && currentSelectedCategory === cat) {
+                    visibleCount += pageProducts.length;
+                }
             } catch (e) {
                 lastDbError = e; st.done = true;
                 console.error('Products page failed:', e);
@@ -2823,7 +2828,7 @@
                 markReady('categories');
             });
 
-            // المنتجات: أول 4 فقط، والباقي عند النزول أو تغيير التصنيف
+            // المنتجات: أول 8 تظهر مباشرة بعد تجهيز البيانات، والباقي عند النزول أو تغيير التصنيف
             fetchProductsPage('الكل', true);
         }
 
