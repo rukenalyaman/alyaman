@@ -160,8 +160,8 @@
             border-radius:999px;background:linear-gradient(135deg,rgba(244,248,255,.97),rgba(224,237,255,.93));
             box-shadow:0 8px 22px -18px rgba(30,58,138,.35)
         }
-        .hero .hero-tagline{font-size:clamp(1.1rem,1.9vw,1.6rem);font-weight:900;color:#1e4690;margin:0 0 .25rem;line-height:1.5}
-        .hero .hero-categories{font-size:clamp(.82rem,1.4vw,1.05rem);font-weight:800;color:#385f95;margin:0;line-height:1.7}
+        .hero .hero-tagline{font-size:clamp(1.2rem,2.1vw,1.75rem);font-weight:900;color:#1e4690;margin:0 0 .25rem;line-height:1.5}
+        .hero .hero-categories{font-size:clamp(.9rem,1.55vw,1.15rem);font-weight:800;color:#385f95;margin:0;line-height:1.7}
         .hero .hero-categories span{color:#7f9fc9;padding:0 .12rem}
         .hero-chips{display:flex;flex-wrap:wrap;gap:.55rem;margin-top:1rem}
         .hero-chips span{display:inline-flex;align-items:center;gap:.35rem;background:rgba(255,255,255,.96);border:1px solid #b9d0f2;color:#1d4ed8;font-weight:900;font-size:.82rem;padding:.48rem .85rem;border-radius:9999px;box-shadow:0 5px 12px -7px rgba(30,58,138,.32);white-space:nowrap}
@@ -208,8 +208,8 @@
             .hero-chips{justify-content:center;margin-top:.75rem}
             .hero-chips span{font-size:.73rem;padding:.4rem .68rem}
             .hero-message{width:min(100%,470px);margin:0 auto;padding:.75rem .8rem}
-            .hero .hero-tagline{font-size:clamp(.95rem,4.5vw,1.2rem)}
-            .hero .hero-categories{font-size:clamp(.72rem,3.3vw,.9rem)}
+            .hero .hero-tagline{font-size:clamp(1.05rem,5vw,1.35rem)}
+            .hero .hero-categories{font-size:clamp(.8rem,3.7vw,1rem)}
             .hero-floral-art{left:0;bottom:-.2rem;width:112px;height:100px;opacity:.72}
             .hero-floral-art svg{max-height:105px}
         }
@@ -344,6 +344,24 @@
             font-weight: 900;
         }
 
+
+        /* ظهور ناعم للمنتجات الجديدة */
+        .prod-card.card-enter{animation:card-in .8s cubic-bezier(.22,.8,.3,1) backwards;animation-delay:calc(var(--i,0) * 120ms)}
+        @keyframes card-in{from{opacity:0;transform:translateY(46px) scale(.94)}to{opacity:1;transform:none}}
+        [data-more-skel]{animation:skel-in .35s ease both}
+        @keyframes skel-in{from{opacity:0}to{opacity:1}}
+
+        /* رسالة "استكشف جميع المنتجات" */
+        .explore-banner{margin:2rem auto 0;max-width:520px;text-align:center;padding:1.4rem 1.25rem;border-radius:24px;border:1px solid #bcd3f3;background:linear-gradient(135deg,#f4f8ff,#e0edff);box-shadow:0 14px 30px -20px rgba(30,58,138,.4);opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
+        .explore-banner.in{opacity:1;transform:none}
+        .explore-banner .ex-icon{width:52px;height:52px;margin:0 auto .6rem;border-radius:16px;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:1.4rem}
+        .explore-banner h3{font-size:1.1rem;font-weight:900;color:#1e3a8a;margin:0 0 .3rem}
+        .explore-banner p{font-size:.8rem;color:#385f95;font-weight:700;margin:0 0 .9rem}
+        .explore-banner button{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;font-weight:800;font-size:.85rem;padding:.6rem 1.4rem;border-radius:9999px;box-shadow:0 6px 14px -6px rgba(29,78,216,.55)}
+        #categories-section{scroll-margin-top:170px}
+        #categories-container.cat-pulse .cat-thumb{animation:cat-pulse 1s ease 2}
+        @keyframes cat-pulse{50%{box-shadow:0 0 0 6px #bfdbfe}}
+        @media (prefers-reduced-motion:reduce){.prod-card.card-enter,.explore-banner{animation:none;transition:none;opacity:1;transform:none}}
     </style>
 </head>
 <body class="min-h-screen flex flex-col bg-[#f8faff]">
@@ -526,7 +544,7 @@
         </section>
 
         <!-- قسم التصنيفات: نفس الحاوية للـ skeleton وللمحتوى الحقيقي حتى ما يتغير الارتفاع -->
-        <section class="mb-8">
+        <section class="mb-8" id="categories-section">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-xl font-black text-stone-900 flex items-center gap-2">
                     <i class="fa-solid fa-border-all text-blue-700"></i> التصنيفات
@@ -555,6 +573,12 @@
             <div id="products-grid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4"></div>
  
             <div id="products-sentinel" class="h-1"></div>
+            <div id="explore-banner" class="explore-banner hidden">
+                <div class="ex-icon"><i class="fa-solid fa-compass"></i></div>
+                <h3>استكشف جميع المنتجات بأصنافها</h3>
+                <p>اختاري الصنف اللي يعجبج وتصفحي كل منتجاته</p>
+                <button type="button" onclick="exploreCategories()">تصفحي الأصناف <i class="fa-solid fa-arrow-up mr-1"></i></button>
+            </div>
             <div class="text-center mt-6">
                 <button id="load-more-btn" type="button" onclick="loadMoreProducts()" class="hidden px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm shadow">عرض المزيد</button>
             </div>
@@ -1253,6 +1277,7 @@
             const countBadge = $('products-count');
  
             if (loading) {
+                renderedHtml = [];
                 grid.innerHTML = Array.from({ length: 4 }, productSkeleton).join('');
                 countBadge.textContent = '…';
                 noProducts.classList.add('hidden');
@@ -1273,24 +1298,82 @@
  
             // تغيير التصنيف/البحث يرجّع العرض لأول دفعة، أما تحديثات الخصم والكمية فتحافظ على ما هو ظاهر
             const filterKey = `${currentSelectedCategory}|${currentSubcategory}|${q}`;
-            if (filterKey !== lastFilterKey) { lastFilterKey = filterKey; visibleCount = PAGE_SIZE; }
+            if (filterKey !== lastFilterKey) { lastFilterKey = filterKey; visibleCount = PAGE_SIZE; shownIds = new Set(); }
             lastFiltered = filtered;
 
+            const home = isHomeMode();
             countBadge.textContent = filtered.length;
             noProducts.classList.toggle('hidden', filtered.length > 0);
-            const limit = 'IntersectionObserver' in window ? visibleCount : filtered.length;
-            grid.innerHTML = filtered.slice(0, limit).map((p, i) => productCard(p, i)).join('');
+            const limit = home ? HOME_LIMIT : ('IntersectionObserver' in window ? visibleCount : filtered.length);
+            const htmls = filtered.slice(0, limit).map((p, i) => productCard(p, i));
+            const prev = renderedHtml;
+            const isPrefix = prev.length > 0 && prev.length <= htmls.length && prev.every((h, i) => h === htmls[i]);
+            removeMoreSkeleton();
+            if (isPrefix) {
+                // نضيف المنتجات الجديدة فقط بدون إعادة بناء الشبكة (حتى ما تنقطع الحركة ويصير ظهور مفاجئ)
+                if (htmls.length > prev.length) grid.insertAdjacentHTML('beforeend', htmls.slice(prev.length).join(''));
+            } else {
+                grid.innerHTML = htmls.join('');
+            }
+            renderedHtml = htmls;
+            animateNew(grid, true);
             markLoadedImages(grid);
             watchSentinel();
             updateLoadMore();
+            updateExploreBanner();
         }
 
-        /* ===== التحميل الكسول للمنتجات: نعرض دفعة (12) وكل ما تقرب الزبونة من النهاية نضيف دفعة ثانية ===== */
-        const PAGE_SIZE = 4;
+        /* ===== التحميل الكسول: الرئيسية 4 منتجات فقط، وداخل التصنيفات دفعات من 6 بأنميشن ناعم ===== */
+        const PAGE_SIZE = 6;      // داخل التصنيفات: 6 منتجات كل دفعة
+        const HOME_LIMIT = 4;     // الصفحة الرئيسية (الكل): 4 فقط
         let visibleCount = PAGE_SIZE;
         let lastFilterKey = '';
         let lastFiltered = [];
         let sentinelObserver = null;
+        let shownIds = new Set();
+        let renderedHtml = [];
+        let moreBusy = false;
+
+        // بطاقات هيكلية تظهر أثناء تحميل الدفعة التالية، ثم تُستبدل بالمنتجات بحركة ناعمة
+        function showMoreSkeleton() {
+            const grid = $('products-grid');
+            if (grid.querySelector('[data-more-skel]')) return;
+            grid.insertAdjacentHTML('beforeend', Array.from({ length: 3 }, () =>
+                productSkeleton().replace('<div class="bg-white rounded-2xl p-3', '<div data-more-skel class="bg-white rounded-2xl p-3')).join(''));
+        }
+        function removeMoreSkeleton() {
+            $('products-grid').querySelectorAll('[data-more-skel]').forEach((el) => el.remove());
+        }
+
+        // الصفحة الرئيسية = تصنيف "الكل" بدون بحث
+        function isHomeMode() { return currentSelectedCategory === 'الكل' && !searchQuery.trim(); }
+
+        // يضيف أنميشن ظهور ناعم للبطاقات الجديدة فقط
+        function animateNew(grid, animate) {
+            let i = 0;
+            grid.querySelectorAll('[data-product-open]').forEach((el) => {
+                const id = el.dataset.productOpen;
+                if (shownIds.has(id)) return;
+                shownIds.add(id);
+                if (animate) {
+                    el.style.setProperty('--i', i++);
+                    el.classList.add('card-enter');
+                }
+            });
+        }
+
+        function updateExploreBanner() {
+            const b = $('explore-banner');
+            if (b) b.classList.toggle('hidden', !(isHomeMode() && !loading && lastFiltered.length > 0));
+        }
+
+        function exploreCategories() {
+            const s = $('categories-section');
+            if (s) s.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            const c = $('categories-container');
+            c.classList.remove('cat-pulse'); void c.offsetWidth; c.classList.add('cat-pulse');
+            setTimeout(() => c.classList.remove('cat-pulse'), 2200);
+        }
 
         function watchSentinel() {
             if (!('IntersectionObserver' in window)) return;
@@ -1301,29 +1384,42 @@
                 }, { rootMargin: '120px 0px' });
             }
             sentinelObserver.unobserve(s);   // إعادة المراقبة تعيد فحص الموقع الحالي
+            if (isHomeMode()) return;        // بالرئيسية ما نحمل زيادة
             sentinelObserver.observe(s);
         }
 
         function updateLoadMore() {
             const b = $('load-more-btn');
-            if (b) b.classList.toggle('hidden', loading || $('products-grid').children.length >= lastFiltered.length);
+            if (b) b.classList.toggle('hidden', isHomeMode() || loading || renderedHtml.length >= lastFiltered.length);
         }
 
         function loadMoreProducts() {
-            if (loading) return;
+            if (loading || isHomeMode()) return;
             if (visibleCount >= lastFiltered.length) {
                 if (!db || !fb || allLoaded) return;
                 if (searchQuery.trim()) loadAllProducts();
                 else fetchProductsPage(currentSelectedCategory, !remote[currentSelectedCategory]);
                 return;
             }
-            const grid = $('products-grid');
-            const from = visibleCount;
-            visibleCount += PAGE_SIZE;
-            grid.insertAdjacentHTML('beforeend', lastFiltered.slice(from, visibleCount).map(productCard).join(''));
-            markLoadedImages(grid);
-            watchSentinel();
-            updateLoadMore();
+            if (moreBusy) return;
+            moreBusy = true;
+            const key = lastFilterKey;
+            showMoreSkeleton();
+            setTimeout(() => {
+                moreBusy = false;
+                if (key !== lastFilterKey) { removeMoreSkeleton(); return; }   // تغيّر التصنيف أثناء الانتظار
+                const grid = $('products-grid');
+                const from = visibleCount;
+                visibleCount += PAGE_SIZE;
+                const add = lastFiltered.slice(from, visibleCount).map((p) => productCard(p));
+                removeMoreSkeleton();
+                grid.insertAdjacentHTML('beforeend', add.join(''));
+                renderedHtml = renderedHtml.concat(add);
+                animateNew(grid, true);
+                markLoadedImages(grid);
+                watchSentinel();
+                updateLoadMore();
+            }, 450);
         }
  
         /* ================= البحث والتنقل ================= */
@@ -2636,7 +2732,8 @@
             const st = remote[cat] || (remote[cat] = { cursor: null, done: false, busy: false, ordered: true });
             if (st.busy || st.done) return;
             st.busy = true;
-            const n = first ? 4 : 8;
+            if (!first) showMoreSkeleton();
+            const n = cat === 'الكل' ? 4 : 6;
             const build = (ordered) => {
                 const c = [];
                 if (cat !== 'الكل') c.push(fb.where('category', '==', cat));
@@ -2658,6 +2755,7 @@
                 console.error('Products page failed:', e);
             }
             st.busy = false;
+            removeMoreSkeleton();
             const wasLoading = loading;
             markReady('products');
             if (!wasLoading) { renderProducts(); if (adminOpen) renderAdminTables(); }
@@ -2751,6 +2849,14 @@
             const hero = document.querySelector('.hero');
             if (!hero || !('IntersectionObserver' in window)) return;
             new IntersectionObserver((en) => hero.classList.toggle('hero-paused', !en[0].isIntersecting)).observe(hero);
+        })();
+
+        // رسالة الاستكشاف تظهر بنعومة لما ينزل الزبون لتحت
+        (function () {
+            const b = $('explore-banner');
+            if (!b) return;
+            if (!('IntersectionObserver' in window)) { b.classList.add('in'); return; }
+            new IntersectionObserver((en) => { if (en[0].isIntersecting) b.classList.add('in'); }, { threshold: 0.3 }).observe(b);
         })();
 
         /* ================= التشغيل ================= */
