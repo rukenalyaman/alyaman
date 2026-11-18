@@ -178,16 +178,47 @@
         @keyframes hero-name-flower-sway{0%,100%{transform:translate3d(0,0,0) rotate(-9deg)}50%{transform:translate3d(2px,-5px,0) rotate(13deg)}}
         @media (prefers-reduced-motion:reduce){.hero-flower,.hero-name-flower{animation:none;will-change:auto}}
         body main section h2{letter-spacing:-.01em}
-        body .prod-card{background:#fff;border:1px solid #e8eefc;border-radius:20px;padding:.85rem;box-shadow:0 1px 2px rgba(30,58,138,.05),0 8px 24px -14px rgba(30,58,138,.22);transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease;content-visibility:auto;contain-intrinsic-size:auto 340px}
+        body .prod-card{background:#fff;border:1px solid #e8eefc;border-radius:20px;padding:.85rem;box-shadow:0 1px 2px rgba(30,58,138,.05),0 8px 24px -14px rgba(30,58,138,.22);transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
         body .prod-card .main-img{transition:transform .35s ease,opacity .3s ease}
-        /* تثبيت أبعاد بطاقات المنتجات لمنع قفز النصوص وتداخلها أثناء وصول البيانات والصور */
-        #products-grid{align-items:stretch;grid-auto-rows:1fr}
-        #products-grid .prod-card{min-height:350px;min-width:0;contain:layout style}
-        #products-grid .prod-card > div:first-child{flex:0 0 auto;aspect-ratio:1/1}
-        #products-grid .prod-card h3{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;min-height:2.6em}
-        #products-grid .prod-card p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;min-height:3.9em}
-        #products-grid .prod-card img{aspect-ratio:1/1}
-        @media(max-width:420px){#products-grid .prod-card{min-height:330px}}
+        /* ===== شبكة المنتجات: أعمدة ثابتة + بطاقات بنسبة عرض/ارتفاع ثابتة ===== */
+        html{scrollbar-gutter:stable}
+        #products-grid{
+            --cols:2;--ratio:4/7;--gap:.75rem;--pad:.75rem;
+            display:grid;grid-template-columns:repeat(var(--cols),minmax(0,1fr));
+            gap:var(--gap);align-items:start;
+        }
+        @media(min-width:480px){#products-grid{--ratio:5/8}}
+        @media(min-width:640px){#products-grid{--cols:3;--gap:1rem;--pad:.85rem}}
+        @media(min-width:1024px){#products-grid{--cols:4}}
+        /* البطاقة: نسبة ثابتة، وثلاثة صفوف: صورة مربعة / نص مرن مقصوص / تذييل ثابت */
+        #products-grid > .prod-card,#products-grid > .prod-skel{
+            container-type:inline-size;aspect-ratio:var(--ratio);
+            display:grid;grid-template-rows:auto minmax(0,1fr) auto;row-gap:.5rem;
+            min-width:0;min-height:0;height:auto;padding:var(--pad);overflow:hidden;contain:layout style;
+        }
+        #products-grid .pc-img{position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:14px;background:#eef4ff;contain:layout paint}
+        #products-grid .pc-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+        #products-grid .pc-img:has(img.img-fade:not(.loaded)){background:linear-gradient(90deg,#dbeafe 25%,#eff6ff 50%,#dbeafe 75%);background-size:200% 100%;animation:sk-move 1.2s ease-in-out infinite}
+        @media(prefers-reduced-motion:reduce){#products-grid .pc-img{animation:none!important}}
+        #products-grid .pc-info{min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:.25rem}
+        #products-grid .pc-title{flex:0 0 auto;margin:0;font-size:.8125rem;line-height:1.2;height:2.4em;font-weight:700;
+            display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere}
+        #products-grid .pc-desc{flex:0 0 auto;margin:0;font-size:.6875rem;line-height:1.35;color:#78716c;
+            display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere}
+        #products-grid .pc-foot{height:2.75rem;padding-top:.25rem;display:flex;align-items:center;justify-content:space-between;gap:.5rem;border-top:1px solid #f5f5f4}
+        #products-grid .pc-price{min-width:0;display:flex;flex-direction:column;justify-content:center}
+        #products-grid .pc-foot button{flex:0 0 auto;white-space:nowrap}
+        @media(min-width:768px){#products-grid .pc-title{font-size:.875rem}}
+        /* تكيّف النص مع عرض البطاقة نفسها (لا مع الشاشة) كي لا يتجاوز المساحة المخصصة */
+        @container (max-width:200px){#products-grid .pc-desc{-webkit-line-clamp:1}}
+        @container (max-width:150px){#products-grid .pc-desc{display:none}}
+        /* مربعات الانتظار بنفس الهيكل والنسبة تماماً */
+        #products-grid .prod-skel{background:#fff;border:1px solid #e8eefc;border-radius:20px}
+        #products-grid .prod-skel .pc-info{justify-content:flex-start;gap:.4rem;padding-top:.25rem}
+        #products-grid .prod-skel .pc-foot{border-top-color:transparent}
+        /* ظهور ناعم عند دخول البطاقة للشاشة (opacity/transform فقط، لا يمس التخطيط) */
+        .prod-card.rv{opacity:0;transform:translateY(14px)}
+        .prod-card.rv.rv-in{opacity:1;transform:none;transition:opacity .5s ease var(--d,0ms),transform .5s cubic-bezier(.22,.8,.3,1) var(--d,0ms)}
         body .prod-card:focus-visible{outline:3px solid #bfdbfe;outline-offset:3px}
         body .cat-thumb{box-shadow:0 6px 14px -8px rgba(30,58,138,.35)}
         body #subcats-container{background:#f4f7ff;border-color:#e3eafc}
@@ -354,8 +385,6 @@
 
 
         /* ظهور ناعم للمنتجات الجديدة */
-        .prod-card.card-enter{animation:card-in .8s cubic-bezier(.22,.8,.3,1) backwards;animation-delay:calc(var(--i,0) * 120ms)}
-        @keyframes card-in{from{opacity:0;transform:translateY(46px) scale(.94)}to{opacity:1;transform:none}}
         [data-more-skel]{animation:skel-in .35s ease both}
         @keyframes skel-in{from{opacity:0}to{opacity:1}}
 
@@ -369,7 +398,7 @@
         #categories-section{scroll-margin-top:170px}
         #categories-container.cat-pulse .cat-thumb{animation:cat-pulse 1s ease 2}
         @keyframes cat-pulse{50%{box-shadow:0 0 0 6px #bfdbfe}}
-        @media (prefers-reduced-motion:reduce){.prod-card.card-enter,.explore-banner{animation:none;transition:none;opacity:1;transform:none}}
+        @media (prefers-reduced-motion:reduce){.prod-card.rv,.prod-card.rv.rv-in,.explore-banner{animation:none;transition:none;opacity:1;transform:none}}
     </style>
 </head>
 <body class="min-h-screen flex flex-col bg-[#f8faff]">
@@ -578,7 +607,7 @@
                 </div>
             </div>
  
-            <div id="products-grid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4"></div>
+            <div id="products-grid"></div>
  
             <div id="products-sentinel" class="h-1"></div>
             <div id="explore-banner" class="explore-banner hidden">
@@ -1099,6 +1128,21 @@
         const hasCache = hasCategoriesCache && hasProductsCache;
         let categories = hasCategoriesCache ? cache.categories : [...defaultCategories];
         let products = hasProductsCache ? cache.products : [];
+
+        /* ===== ترتيب ثابت للمنتجات =====
+           كل منتج ياخذ رتبة مرة واحدة عند أول ظهور (الأحدث أولاً)، وبعدها لا يتغير موقعه أبداً أثناء الجلسة:
+           تحديث الخصم/الكمية، وصول دفعات جديدة من Firebase، أو استبدال المصفوفة كلها لا يعيد الترتيب.
+           المنتجات الجديدة التي تصل لاحقاً تُلحق بالنهاية، وما يضيفه المدير يُثبَّت في الأعلى. */
+        const orderRank = new Map();
+        let rankNext = 0, rankTop = 0;
+        function stabilize(list) {
+            list.filter((p) => !orderRank.has(p.id))
+                .sort((a, b) => (Number(b.createdAt) || 0) - (Number(a.createdAt) || 0))
+                .forEach((p) => orderRank.set(p.id, rankNext++));
+            return Object.freeze([...list].sort((a, b) => orderRank.get(a.id) - orderRank.get(b.id)));
+        }
+        function resetOrder() { orderRank.clear(); rankNext = 0; rankTop = 0; }   // عند أول دفعة حقيقية من السيرفر فقط
+        function pinToTop(id) { orderRank.set(id, --rankTop); }
  
         function sortCategories(list) {
             return [...list].sort((a, b) => {
@@ -1236,22 +1280,10 @@
         // هياكل التحميل الأولية تبقى خلف شاشة الترحيب، وتختفي بمجرد جاهزية أول دفعة.
         function productSkeleton() {
             return `
-                <div class="bg-white rounded-2xl p-3 border border-blue-100 shadow-sm flex flex-col h-full">
-                    <div class="w-full aspect-square rounded-xl sk mb-3"></div>
-                    <div class="mb-1 h-[35px] flex flex-col justify-center gap-1.5">
-                        <div class="h-3 sk rounded-full w-3/4"></div>
-                        <div class="h-3 sk rounded-full w-1/2"></div>
-                    </div>
-                    <div class="mb-3 flex-grow min-h-[30px] flex flex-col justify-center gap-1.5">
-                        <div class="h-2 sk rounded-full w-full"></div>
-                        <div class="h-2 sk rounded-full w-2/3"></div>
-                    </div>
-                    <div class="flex items-center justify-between mt-auto pt-2 border-t border-stone-50">
-                        <div class="h-9 flex items-center w-full justify-between">
-                            <div class="h-4 sk rounded-full w-16"></div>
-                            <div class="h-7 sk rounded-lg w-14"></div>
-                        </div>
-                    </div>
+                <div class="bg-white rounded-2xl p-3 prod-skel" aria-hidden="true">
+                    <div class="pc-img sk"></div>
+                    <div class="pc-info"><div class="h-3 sk rounded-full w-3/4"></div><div class="h-3 sk rounded-full w-1/2"></div></div>
+                    <div class="pc-foot"><div class="h-4 sk rounded-full w-16"></div><div class="h-7 sk rounded-lg w-14"></div></div>
                 </div>`;
         }
  
@@ -1285,17 +1317,19 @@
             const mainImg = imgs[0] || p.image || svgFallback;
 
             return `
-                <div class="prod-card bg-white rounded-2xl p-3 flex flex-col h-full relative cursor-pointer" data-product-open="${esc(p.id)}" role="button" tabindex="0" aria-label="عرض تفاصيل ${esc(p.name)}">
-                    <div class="relative w-full aspect-square rounded-xl overflow-hidden mb-3 bg-white">
+                <div class="prod-card bg-white rounded-2xl relative cursor-pointer" data-product-open="${esc(p.id)}" role="button" tabindex="0" aria-label="عرض تفاصيل ${esc(p.name)}">
+                    <div class="pc-img">
                         ${badge}
                         ${stockBadge}
                         <img src="${esc(cldUrl(mainImg, 600))}" data-orig="${esc(mainImg)}" alt="${esc(p.name)}" width="380" height="380" loading="${eager ? 'eager' : 'lazy'}"${eager ? ' fetchpriority="high"' : ''} decoding="async" class="main-img img-fade w-full h-full object-contain bg-white${soldOut ? ' opacity-60' : ''}" onload="this.classList.add('loaded')" onerror="imgErr(this,'prod')">
                         <div class="absolute top-2 right-2 bg-white/90 text-blue-700 text-[10px] font-bold px-2 py-1 rounded-md shadow-sm">${esc(p.category)}</div>
                     </div>
-                    <h3 class="font-bold text-stone-800 text-sm mb-1 leading-tight min-h-[35px]" title="${esc(p.name)}">${esc(p.name)}</h3>
-                    <p class="text-[10px] text-stone-500 mb-3 flex-grow min-h-[30px]" title="${esc(p.description)}">${esc(p.description)}</p>
-                    <div class="flex items-center justify-between mt-auto pt-2 border-t border-stone-50">
-                        <div class="h-9 flex flex-col justify-center">${priceHtml}</div>
+                    <div class="pc-info">
+                        <h3 class="pc-title" title="${esc(p.name)}">${esc(p.name)}</h3>
+                        <p class="pc-desc" title="${esc(p.description)}">${esc(p.description)}</p>
+                    </div>
+                    <div class="pc-foot">
+                        <div class="pc-price">${priceHtml}</div>
                         ${addBtn}
                     </div>
                 </div>`;
@@ -1314,7 +1348,7 @@
                 return;
             }
  
-            let filtered = [...products].sort((a, b) => (Number(b.createdAt) || 0) - (Number(a.createdAt) || 0));
+            let filtered = stabilize(products);   // ترتيب مجمّد: الفلترة والبحث تحافظ على نفس التسلسل
             if (currentSelectedCategory !== 'الكل') {
                 filtered = filtered.filter((p) => p.category === currentSelectedCategory);
                 if (currentSubcategory !== 'الكل') {
@@ -1329,7 +1363,7 @@
             // تغيير التصنيف/البحث يرجّع العرض لأول دفعة، أما تحديثات الخصم والكمية فتحافظ على ما هو ظاهر
             const filterKey = `${currentSelectedCategory}|${currentSubcategory}|${q}`;
             if (filterKey !== lastFilterKey) { lastFilterKey = filterKey; visibleCount = PAGE_SIZE; shownIds = new Set(); }
-            lastFiltered = filtered;
+            lastFiltered = Object.freeze(filtered);
 
             const home = isHomeMode();
             countBadge.textContent = filtered.length;
@@ -1378,16 +1412,35 @@
         // الصفحة الرئيسية = تصنيف "الكل" بدون بحث
         function isHomeMode() { return currentSelectedCategory === 'الكل' && !searchQuery.trim(); }
 
-        // يضيف أنميشن ظهور ناعم للبطاقات الجديدة فقط
+        // ظهور ناعم لكل بطاقة عند دخولها الشاشة فعلاً (وليس لحظة إضافتها للصفحة)
+        let revealObserver = null;
+        function revealCard(el) {
+            el.classList.add('rv-in');
+            const done = () => { el.classList.remove('rv', 'rv-in'); el.style.removeProperty('--d'); };
+            el.addEventListener('transitionend', (e) => { if (e.propertyName === 'opacity') done(); }, { once: true });
+            setTimeout(done, 1200);   // احتياط إن لم يُطلق المتصفح transitionend
+        }
         function animateNew(grid, animate) {
-            let i = 0;
+            const canObserve = 'IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (canObserve && !revealObserver) {
+                revealObserver = new IntersectionObserver((entries) => {
+                    let n = 0;
+                    entries.filter((en) => en.isIntersecting)
+                        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top || a.boundingClientRect.left - b.boundingClientRect.left)
+                        .forEach((en) => {
+                            en.target.style.setProperty('--d', Math.min(n++, 5) * 55 + 'ms');
+                            revealObserver.unobserve(en.target);
+                            revealCard(en.target);
+                        });
+                }, { threshold: 0.08, rootMargin: '0px 0px -4% 0px' });
+            }
             grid.querySelectorAll('[data-product-open]').forEach((el) => {
                 const id = el.dataset.productOpen;
                 if (shownIds.has(id)) return;
                 shownIds.add(id);
-                if (animate) {
-                    el.style.setProperty('--i', i++);
-                    el.classList.add('card-enter');
+                if (animate && canObserve) {
+                    el.classList.add('rv');
+                    revealObserver.observe(el);
                 }
             });
         }
@@ -2434,7 +2487,7 @@
  
             if (isOfflineMode || !db) {
                 if (id) { const idx = products.findIndex((x) => x.id === id); if (idx > -1) products[idx] = { ...products[idx], id, ...data }; }
-                else products.push({ id: 'p-' + Date.now(), ...data });
+                else { const nid = 'p-' + Date.now(); products.push({ id: nid, ...data }); pinToTop(nid); }
                 rebuildIndex();
                 persist('products', products);
                 renderProducts();
@@ -2449,7 +2502,7 @@
                     if (pid) {
                         const idx = products.findIndex((x) => x.id === pid);
                         if (idx > -1) products[idx] = { ...products[idx], ...data, id: pid };
-                        else products.push({ id: pid, ...data });
+                        else { products.push({ id: pid, ...data }); pinToTop(pid); }
                         rebuildIndex();
                         persist('products', products);
                         renderProducts();
@@ -2812,7 +2865,7 @@
                 catch (e) { if (!st.ordered) throw e; st.ordered = false; snap = await readDocs(build(false)); }
                 if (snap.docs.length) st.cursor = snap.docs[snap.docs.length - 1];
                 if (snap.docs.length < n) st.done = true;
-                if (first && cat === 'الكل') products = [];   // أول دفعة حقيقية تستبدل الكاش القديم
+                if (first && cat === 'الكل') { products = []; resetOrder(); }   // أول دفعة حقيقية تستبدل الكاش القديم
                 const pageProducts = cleanDocs(snap);
                 mergeProducts(pageProducts);
                 // عند جلب صفحة إضافية للتصنيف المفتوح، وسّع عدد المنتجات المعروضة
