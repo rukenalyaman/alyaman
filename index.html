@@ -180,6 +180,14 @@
         body main section h2{letter-spacing:-.01em}
         body .prod-card{background:#fff;border:1px solid #e8eefc;border-radius:20px;padding:.85rem;box-shadow:0 1px 2px rgba(30,58,138,.05),0 8px 24px -14px rgba(30,58,138,.22);transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease;content-visibility:auto;contain-intrinsic-size:auto 340px}
         body .prod-card .main-img{transition:transform .35s ease,opacity .3s ease}
+        /* تثبيت أبعاد بطاقات المنتجات لمنع قفز النصوص وتداخلها أثناء وصول البيانات والصور */
+        #products-grid{align-items:stretch;grid-auto-rows:1fr}
+        #products-grid .prod-card{min-height:350px;min-width:0;contain:layout style}
+        #products-grid .prod-card > div:first-child{flex:0 0 auto;aspect-ratio:1/1}
+        #products-grid .prod-card h3{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;min-height:2.6em}
+        #products-grid .prod-card p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;min-height:3.9em}
+        #products-grid .prod-card img{aspect-ratio:1/1}
+        @media(max-width:420px){#products-grid .prod-card{min-height:330px}}
         body .prod-card:focus-visible{outline:3px solid #bfdbfe;outline-offset:3px}
         body .cat-thumb{box-shadow:0 6px 14px -8px rgba(30,58,138,.35)}
         body #subcats-container{background:#f4f7ff;border-color:#e3eafc}
@@ -2713,7 +2721,18 @@
                     ]);
 
                     fb = fsM;
-                    const app = appM.initializeApp(firebaseConfig);
+                    const app = (appM.getApps && appM.getApps().length)
+                        ? appM.getApp()
+                        : appM.initializeApp(firebaseConfig);
+
+                    // تهيئة المصادقة أولاً مع حفظ جلسة المستخدم المجهول محلياً.
+                    // هذا يمنع إعادة تسجيل الدخول عند كل تحديث للصفحة ويدعم قواعد Firestore التي تتطلب مستخدماً موثقاً.
+                    const auth = authM.getAuth(app);
+                    try {
+                        await authM.setPersistence(auth, authM.browserLocalPersistence);
+                    } catch (persistenceErr) {
+                        console.warn('Auth persistence unavailable; continuing with current session:', persistenceErr);
+                    }
 
                     // كاش بالذاكرة فقط (بدون تخزين دائم). إذا فشل نستخدم Firestore العادي.
                     try {
@@ -2734,13 +2753,17 @@
                     });
 
                     try {
-                        await authM.signInAnonymously(authM.getAuth(app));
-                        authOk = true;
+                        if (!auth.currentUser) await authM.signInAnonymously(auth);
+                        authOk = !!auth.currentUser;
+                        if (!authOk) throw new Error('Firebase Auth لم يُرجع مستخدماً موثقاً');
                     } catch (authErr) {
                         authError = authErr;
+                        authOk = false;
                         console.error('Anonymous sign-in failed:', authErr);
                     }
 
+                    // تبقى قراءة البيانات العامة ممكنة إذا كانت قواعد Firestore تسمح بذلك،
+                    // أما العمليات المحمية فتحتاج نجاح المصادقة حسب قواعد المشروع.
                     initFirestoreListeners();
                 } catch (err) {
                     console.error('Firebase init failed:', err);
@@ -2800,6 +2823,11 @@
             } catch (e) {
                 lastDbError = e; st.done = true;
                 console.error('Products page failed:', e);
+                // إذا لم يصل أي منتج بعد، احتفظ بالمحتوى الاحتياطي بدلاً من ترك شبكة فارغة.
+                if (first && cat === 'الكل' && products.length === 0 && defaultProducts.length) {
+                    products = [...defaultProducts];
+                    rebuildIndex();
+                }
             }
             st.busy = false;
             removeMoreSkeleton();
@@ -2890,6 +2918,14 @@
             else if (hiddenAt && Date.now() - hiddenAt > 20000) refreshLatestProducts();
         });
         window.addEventListener('pageshow', (e) => { if (e.persisted) refreshLatestProducts(); });
+        window.addEventListener('online', () => {
+            if (db && fb && !loading) {
+                Object.keys(remote).forEach((k) => { if (remote[k].done && !remote[k].cursor) delete remote[k]; });
+                if (!remote['الكل'] || (!remote['الكل'].busy && !remote['الكل'].cursor)) {
+                    fetchProductsPage('الكل', true);
+                }
+            }
+        });
 
         // البانر: نوقف حركته لما ينزل الزبون عنه حتى يبقى التمرير سلس
         (function () {
