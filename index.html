@@ -1046,11 +1046,32 @@
         }
  
         /* ================= الكاش المحلي (أول عرض فوري) ================= */
-        const CACHE_KEY = 'athar_cache_v2';
-        // التخزين المؤقت للبيانات معطّل: كل زيارة تقرأ أحدث بيانات من السيرفر، ونمسح أي كاش قديم.
+        const CACHE_KEY = 'rukn_alyaman_store_cache_v3';
+        // نحفظ المنتجات والتصنيفات على الهاتف لعرضها فور فتح الموقع، ثم نحدّثها من Firestore بالخلفية.
         let cache = {};
-        try { localStorage.removeItem(CACHE_KEY); localStorage.removeItem('athar_cache_v1'); } catch (e) { /* ممنوع */ }
-        function persist(key, val) { cache[key] = val; }   // بالذاكرة فقط (تنتهي بإغلاق الصفحة)
+        try {
+            const saved = localStorage.getItem(CACHE_KEY);
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) cache = parsed;
+            }
+        } catch (e) { cache = {}; }
+        function persist(key, val) {
+            cache[key] = val;
+            try { localStorage.setItem(CACHE_KEY, JSON.stringify(cache)); }
+            catch (e) {
+                // إذا امتلأت مساحة الهاتف، احتفظ بالبيانات المهمة وحاول مجدداً دون الصور الكبيرة.
+                try {
+                    const compact = { ...cache };
+                    if (Array.isArray(compact.products)) compact.products = compact.products.map(p => {
+                        const copy = { ...p };
+                        if (typeof copy.image === 'string' && copy.image.length > 180000) delete copy.image;
+                        return copy;
+                    });
+                    localStorage.setItem(CACHE_KEY, JSON.stringify(compact));
+                } catch (_) { /* تبقى البيانات متاحة خلال الجلسة الحالية */ }
+            }
+        }
  
         /* ================= الحالة ================= */
         const defaultCategories = [
@@ -1305,7 +1326,7 @@
             const home = isHomeMode();
             countBadge.textContent = filtered.length;
             noProducts.classList.toggle('hidden', filtered.length > 0);
-            const limit = home ? HOME_LIMIT : ('IntersectionObserver' in window ? visibleCount : filtered.length);
+            const limit = ('IntersectionObserver' in window ? visibleCount : filtered.length);
             const htmls = filtered.slice(0, limit).map((p, i) => productCard(p, i));
             const prev = renderedHtml;
             const isPrefix = prev.length > 0 && prev.length <= htmls.length && prev.every((h, i) => h === htmls[i]);
@@ -1324,9 +1345,9 @@
             updateExploreBanner();
         }
 
-        /* ===== التحميل الكسول: 8 منتجات في الدفعة، مع ظهور فوري للدفعات عند التمرير ===== */
+        /* ===== تحميل تدريجي: 8 منتجات في كل دفعة، ويستمر أيضاً في الصفحة الرئيسية ===== */
         const PAGE_SIZE = 8;      // 8 منتجات في كل دفعة داخل التصنيفات
-        const HOME_LIMIT = 8;     // الصفحة الرئيسية (الكل): 8 منتجات
+        const HOME_LIMIT = 8;     // حجم الدفعة الأولى
         let visibleCount = PAGE_SIZE;
         let lastFilterKey = '';
         let lastFiltered = [];
@@ -1382,20 +1403,19 @@
             if (!sentinelObserver) {
                 sentinelObserver = new IntersectionObserver((entries) => {
                     if (entries.some((en) => en.isIntersecting)) loadMoreProducts();
-                }, { rootMargin: '120px 0px' });
+                }, { rootMargin: '1600px 0px 1600px 0px', threshold: 0 });
             }
             sentinelObserver.unobserve(s);   // إعادة المراقبة تعيد فحص الموقع الحالي
-            if (isHomeMode()) return;        // بالرئيسية ما نحمل زيادة
             sentinelObserver.observe(s);
         }
 
         function updateLoadMore() {
             const b = $('load-more-btn');
-            if (b) b.classList.toggle('hidden', isHomeMode() || loading || renderedHtml.length >= lastFiltered.length);
+            if (b) b.classList.toggle('hidden', loading || renderedHtml.length >= lastFiltered.length);
         }
 
         function loadMoreProducts() {
-            if (loading || isHomeMode()) return;
+            if (loading) return;
             if (visibleCount >= lastFiltered.length) {
                 if (!db || !fb || allLoaded) return;
                 if (searchQuery.trim()) loadAllProducts();
@@ -1420,6 +1440,28 @@
             updateLoadMore();
             moreBusy = false;
         }
+
+        // ابدأ جلب الدفعة التالية من أول حركة نزول، قبل أن يصل الزبون إلى نهاية المنتجات.
+        // هذا مهم خصوصاً عندما يكون المخزون المحلي يحتوي منتجاً واحداً فقط.
+        let previousProductsScrollY = window.scrollY;
+        let productsScrollPrefetchBusy = false;
+        window.addEventListener('scroll', () => {
+            const currentY = window.scrollY;
+            const movingDown = currentY > previousProductsScrollY;
+            previousProductsScrollY = currentY;
+            if (!movingDown || productsScrollPrefetchBusy || loading) return;
+            const sentinel = $('products-sentinel');
+            if (!sentinel) return;
+            const distance = sentinel.getBoundingClientRect().top;
+            if (distance > window.innerHeight * 5) return;
+            // لا نطلب صفحة بعيدة إذا كانت لدينا منتجات كافية معروضة بعد.
+            if (visibleCount >= lastFiltered.length && db && fb && !allLoaded) {
+                productsScrollPrefetchBusy = true;
+                Promise.resolve(loadMoreProducts()).finally(() => {
+                    productsScrollPrefetchBusy = false;
+                });
+            }
+        }, { passive: true });
  
         /* ================= البحث والتنقل ================= */
         let searchTimer;
